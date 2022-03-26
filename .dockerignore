@@ -1,0 +1,8 @@
+*
+!emirecorder/src/**
+!emirecorder/pyproject.toml
+!emirecorder/poetry.lock
+!emirecorder/LICENSE
+!emirecorder/README.md
+!environment.yml
+!requirements.txt
