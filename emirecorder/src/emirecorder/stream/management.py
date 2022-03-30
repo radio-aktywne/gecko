@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from pystreams.ffmpeg import FFmpegNode, FFmpegStream
 from pystreams.minio import MinioNode, MinioStream
@@ -8,7 +8,7 @@ from pystreams.srt import SRTNode
 from pystreams.stream import Stream as PyStream
 
 from emirecorder.config import config
-from emirecorder.models.record import Stream, Token
+from emirecorder.models.record import Event, Token
 from emirecorder.utils import generate_uuid, thread
 
 
@@ -22,18 +22,19 @@ class StreamManager:
 
     def create_token(self) -> Token:
         return Token(
-            token=generate_uuid(), expires_at=datetime.utcnow() + self.timeout
+            token=generate_uuid(),
+            expires_at=datetime.now(timezone.utc) + self.timeout,
         )
 
     @staticmethod
     def get_target_host() -> str:
         return f"http://{config.target_user}:{config.target_password}@{config.target_host}:{config.target_port}"
 
-    def get_target_path(self, stream: Stream) -> str:
-        filename = f"{datetime.utcnow().isoformat()}.{self.FORMAT}"
-        return f"{stream.title}/{filename}"
+    def get_target_path(self, event: Event) -> str:
+        filename = f"{datetime.now(timezone.utc).isoformat()}.{self.FORMAT}"
+        return f"{event.id}/{filename}"
 
-    def create_stream(self, token: str, stream: Stream) -> PyStream:
+    def create_stream(self, token: str, event: Event) -> PyStream:
         return Pipe(
             FFmpegStream(
                 input=SRTNode(
@@ -60,7 +61,7 @@ class StreamManager:
                 MinioNode(
                     host=self.get_target_host(),
                     bucket="recordings",
-                    path=self.get_target_path(stream),
+                    path=self.get_target_path(event),
                 )
             ),
         )
@@ -69,11 +70,11 @@ class StreamManager:
         await thread(self.stream.wait)
         self.stream = None
 
-    def record(self, stream: Stream) -> Token:
+    def record(self, event: Event) -> Token:
         if self.stream is not None:
             raise RuntimeError("Stream is busy.")
         token = self.create_token()
-        self.stream = self.create_stream(token.token, stream)
+        self.stream = self.create_stream(token.token, event)
         self.stream.start()
         asyncio.create_task(self.monitor())
         return token

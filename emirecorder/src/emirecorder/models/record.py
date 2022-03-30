@@ -4,10 +4,11 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class Stream(BaseModel):
-    title: str = "Unknown"
-    planned_start: Optional[datetime] = None
-    planned_end: Optional[datetime] = None
+class Event(BaseModel):
+    id: str
+    title: str
+    start: Optional[datetime] = None
+    end: Optional[datetime] = None
 
 
 class Token(BaseModel):
@@ -16,7 +17,7 @@ class Token(BaseModel):
 
 
 class RecordRequest(BaseModel):
-    stream: Stream
+    event: Event
 
 
 class RecordResponse(BaseModel):
