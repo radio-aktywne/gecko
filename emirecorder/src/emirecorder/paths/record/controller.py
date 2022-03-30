@@ -10,4 +10,4 @@ class RecordController(Controller):
     async def record(
         self, state: State, data: RecordRequest
     ) -> RecordResponse:
-        return RecordResponse(token=state.stream_manager.record(data.stream))
+        return RecordResponse(token=state.stream_manager.record(data.event))
