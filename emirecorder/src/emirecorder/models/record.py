@@ -1,14 +1,19 @@
 from datetime import datetime
-from typing import Optional
+from typing import Dict, Optional
 
 from pydantic import BaseModel
 
 
+class Show(BaseModel):
+    label: str
+    metadata: Dict[str, str] = {}
+
+
 class Event(BaseModel):
-    id: str
-    title: str
+    show: Show
     start: Optional[datetime] = None
     end: Optional[datetime] = None
+    metadata: Dict[str, str] = {}
 
 
 class Token(BaseModel):
