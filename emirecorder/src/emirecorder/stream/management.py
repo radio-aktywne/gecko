@@ -1,5 +1,6 @@
 import asyncio
 from datetime import datetime, timedelta, timezone
+from typing import Dict, List
 
 from pystreams.ffmpeg import FFmpegNode, FFmpegStream
 from pystreams.minio import MinioNode, MinioStream
@@ -32,7 +33,11 @@ class StreamManager:
 
     def get_target_path(self, event: Event) -> str:
         filename = f"{datetime.now(timezone.utc).isoformat()}.{self.FORMAT}"
-        return f"{event.id}/{filename}"
+        return f"{event.show.label}/{filename}"
+
+    @staticmethod
+    def _metadata_values(metadata: Dict[str, str]) -> List[str]:
+        return [f"{key}={value}" for key, value in metadata.items()]
 
     def create_stream(self, token: str, event: Event) -> PyStream:
         return Pipe(
@@ -54,6 +59,9 @@ class StreamManager:
                     options={
                         "acodec": "copy",
                         "format": self.FORMAT,
+                        "metadata": self._metadata_values(
+                            event.show.metadata | event.metadata
+                        ),
                     },
                 ),
             ),
