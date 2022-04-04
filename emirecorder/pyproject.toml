@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "emirecorder"
 version = "0.1.0"
-description = "Emission with WebRTC 🌈"
+description = "emission recording 🎥"
 readme = "README.md"
 authors = ["radio-aktywne <it@radioaktywne.pl>"]
 classifiers = ["License :: OSI Approved :: MIT License",
