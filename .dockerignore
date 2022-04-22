@@ -1,5 +1,6 @@
 *
 !emirecorder/src/**
+!emirecorder/tests/**
 !emirecorder/pyproject.toml
 !emirecorder/poetry.lock
 !emirecorder/LICENSE
