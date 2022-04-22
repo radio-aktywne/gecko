@@ -3,7 +3,7 @@ ARG MINICONDA_IMAGE_TAG=4.10.3-alpine
 
 FROM minio/mc:$MINIO_CLIENT_IMAGE_TAG AS mc
 
-FROM continuumio/miniconda3:$MINICONDA_IMAGE_TAG
+FROM continuumio/miniconda3:$MINICONDA_IMAGE_TAG AS base
 
 COPY --from=mc /usr/bin/mc /usr/bin/mc
 
@@ -34,8 +34,38 @@ SHELL ["conda", "run", "--no-capture-output", "-n", "emirecorder", "/bin/bash", 
 COPY ./emirecorder/pyproject.toml ./emirecorder/poetry.lock /tmp/emirecorder/
 WORKDIR /tmp/emirecorder
 
+ENV EMIRECORDER_PORT=31000 \
+    EMIRECORDER_TARGET_HOST=localhost \
+    EMIRECORDER_TARGET_PORT=30000 \
+    EMIRECORDER_TARGET_USER=readwrite \
+    EMIRECORDER_TARGET_PASSWORD=password
+
+EXPOSE 31000
+EXPOSE 31000/udp
+
+ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "emirecorder"]
+
+FROM base AS test
+
 # install dependencies only (notice that no source code is present yet) and delete cache
-RUN poetry install  --no-root && \
+RUN poetry install --no-root --extras test && \
+    rm -rf ~/.cache/pypoetry
+
+# add source, tests and necessary files
+COPY ./emirecorder/src/ /tmp/emirecorder/src/
+COPY ./emirecorder/tests/ /tmp/emirecorder/tests/
+COPY ./emirecorder/LICENSE ./emirecorder/README.md /tmp/emirecorder/
+
+# build wheel by poetry and install by pip (to force non-editable mode)
+RUN poetry build -f wheel && \
+    python -m pip install --no-deps --no-index --no-cache-dir --find-links=dist emirecorder
+
+CMD ["pytest"]
+
+FROM base AS production
+
+# install dependencies only (notice that no source code is present yet) and delete cache
+RUN poetry install --no-root && \
     rm -rf ~/.cache/pypoetry
 
 # add source and necessary files
@@ -46,13 +76,4 @@ COPY ./emirecorder/LICENSE ./emirecorder/README.md /tmp/emirecorder/
 RUN poetry build -f wheel && \
     python -m pip install --no-deps --no-index --no-cache-dir --find-links=dist emirecorder
 
-ENV EMIRECORDER_PORT=31000 \
-    EMIRECORDER_TARGET_HOST=localhost \
-    EMIRECORDER_TARGET_PORT=30000 \
-    EMIRECORDER_TARGET_USER=readwrite \
-    EMIRECORDER_TARGET_PASSWORD=password
-
-EXPOSE 31000
-EXPOSE 31000/udp
-
-ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "emirecorder", "emirecorder", "--port", "31000"]
+CMD ["emirecorder", "--port", "31000"]
