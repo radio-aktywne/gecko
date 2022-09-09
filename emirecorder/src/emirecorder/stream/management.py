@@ -15,7 +15,7 @@ from emirecorder.utils import generate_uuid, thread
 
 class StreamManager:
     DEFAULT_TIMEOUT = timedelta(seconds=60)
-    FORMAT = "ogg"
+    FORMAT = "opus"
 
     def __init__(self, timeout: timedelta = DEFAULT_TIMEOUT) -> None:
         self.timeout = timeout
