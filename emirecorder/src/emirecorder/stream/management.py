@@ -8,7 +8,7 @@ from pystreams.pipe import Pipe
 from pystreams.srt import SRTNode
 from pystreams.stream import Stream as PyStream
 
-from emirecorder.config import config
+from emirecorder.config import Config
 from emirecorder.models.record import Event, Token
 from emirecorder.utils import generate_uuid, thread
 
@@ -17,7 +17,10 @@ class StreamManager:
     DEFAULT_TIMEOUT = timedelta(seconds=60)
     FORMAT = "opus"
 
-    def __init__(self, timeout: timedelta = DEFAULT_TIMEOUT) -> None:
+    def __init__(
+        self, config: Config, timeout: timedelta = DEFAULT_TIMEOUT
+    ) -> None:
+        self.config = config
         self.timeout = timeout
         self.stream = None
 
@@ -27,9 +30,8 @@ class StreamManager:
             expires_at=datetime.now(timezone.utc) + self.timeout,
         )
 
-    @staticmethod
-    def get_target_host() -> str:
-        return f"http://{config.target_user}:{config.target_password}@{config.target_host}:{config.target_port}"
+    def get_target_host(self) -> str:
+        return f"http://{self.config.target_user}:{self.config.target_password}@{self.config.target_host}:{self.config.target_port}"
 
     def get_target_path(self, event: Event) -> str:
         filename = f"{datetime.now(timezone.utc).isoformat()}.{self.FORMAT}"
@@ -44,7 +46,7 @@ class StreamManager:
             FFmpegStream(
                 input=SRTNode(
                     host="0.0.0.0",
-                    port=config.port,
+                    port=str(self.config.port),
                     options={
                         "re": None,
                         "mode": "listener",

@@ -1,14 +1,47 @@
-import os
+from typing import Iterable, Optional, TextIO, Tuple
 
-from pydantic import BaseModel
+from omegaconf import OmegaConf
+from pydantic import Extra
+from pydantic.env_settings import BaseSettings, SettingsSourceCallable
 
-
-class Config(BaseModel):
-    port: int = int(os.getenv("EMIRECORDER_PORT", 31000))
-    target_host: str = os.getenv("EMIRECORDER_TARGET_HOST", "localhost")
-    target_port: int = int(os.getenv("EMIRECORDER_TARGET_PORT", 30000))
-    target_user: str = os.getenv("EMIRECORDER_TARGET_USER", "readwrite")
-    target_password: str = os.getenv("EMIRECORDER_TARGET_PASSWORD", "password")
+from emirecorder import resource_text
 
 
-config = Config()
+class BaseConfig(BaseSettings):
+    class Config:
+        env_prefix = "emirecorder_"
+        env_nested_delimiter = "__"
+        env_file = ".env"
+        extra = Extra.allow
+
+        @classmethod
+        def customise_sources(
+            cls,
+            init_settings: SettingsSourceCallable,
+            env_settings: SettingsSourceCallable,
+            file_secret_settings: SettingsSourceCallable,
+        ) -> Tuple[SettingsSourceCallable, ...]:
+            return env_settings, init_settings, file_secret_settings
+
+
+class Config(BaseConfig):
+    host: str = "0.0.0.0"
+    port: int = 31000
+    target_host: str = "localhost"
+    target_port: int = 30000
+    target_user: str = "readwrite"
+    target_password: str = "password"
+
+
+def get_config(
+    f: Optional[TextIO] = None, overrides: Optional[Iterable[str]] = None
+) -> Config:
+    config = OmegaConf.create(resource_text("config.yaml"))
+    if f is not None:
+        config = OmegaConf.merge(config, OmegaConf.load(f))
+    if overrides is not None:
+        config = OmegaConf.merge(
+            config, OmegaConf.from_dotlist(list(overrides))
+        )
+    config = OmegaConf.to_container(config, resolve=True)
+    return Config.parse_obj(config)
