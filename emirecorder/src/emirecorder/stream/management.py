@@ -9,32 +9,31 @@ from pystreams.srt import SRTNode
 from pystreams.stream import Stream as PyStream
 
 from emirecorder.config import Config
-from emirecorder.models.record import Event, Token
-from emirecorder.utils import generate_uuid, thread
+from emirecorder.models.data import Token, Event
+from emirecorder.time import stringify, utcnow
+from emirecorder.utils import generate_uuid, background
 
 
 class StreamManager:
-    DEFAULT_TIMEOUT = timedelta(seconds=60)
     FORMAT = "opus"
 
-    def __init__(
-        self, config: Config, timeout: timedelta = DEFAULT_TIMEOUT
-    ) -> None:
+    def __init__(self, config: Config) -> None:
         self.config = config
-        self.timeout = timeout
         self.stream = None
 
     def create_token(self) -> Token:
         return Token(
             token=generate_uuid(),
-            expires_at=datetime.now(timezone.utc) + self.timeout,
+            expires_at=datetime.now(timezone.utc)
+            + timedelta(seconds=self.config.timeout),
         )
 
     def get_target_host(self) -> str:
         return f"http://{self.config.target_user}:{self.config.target_password}@{self.config.target_host}:{self.config.target_port}"
 
     def get_target_path(self, event: Event) -> str:
-        filename = f"{datetime.now(timezone.utc).isoformat()}.{self.FORMAT}"
+        start = event.start if event.start is not None else utcnow()
+        filename = f"{stringify(start)}.{self.FORMAT}"
         return f"{event.show.label}/{filename}"
 
     @staticmethod
@@ -50,9 +49,7 @@ class StreamManager:
                     options={
                         "re": None,
                         "mode": "listener",
-                        "listen_timeout": int(
-                            self.timeout.total_seconds() * 1000000
-                        ),
+                        "listen_timeout": int(self.config.timeout * 1000000),
                         "passphrase": token,
                     },
                 ),
@@ -70,14 +67,14 @@ class StreamManager:
             MinioStream(
                 MinioNode(
                     host=self.get_target_host(),
-                    bucket="recordings",
+                    bucket=self.config.target_bucket,
                     path=self.get_target_path(event),
                 )
             ),
         )
 
     async def monitor(self) -> None:
-        await thread(self.stream.wait)
+        await background(self.stream.wait)
         self.stream = None
 
     def record(self, event: Event) -> Token:

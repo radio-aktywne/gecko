@@ -1,6 +1,6 @@
 from starlite import Controller, State, post
 
-from emirecorder.models.record import RecordRequest, RecordResponse
+from emirecorder.api.paths.record.models import RecordRequest, RecordResponse
 
 
 class RecordController(Controller):

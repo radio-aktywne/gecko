@@ -7,12 +7,12 @@ import logging
 from typing import List, Optional
 
 import typer
-import uvicorn
 from typer import FileText
 
 from emirecorder import log
-from emirecorder.app import build_app
+from emirecorder.api.app import build
 from emirecorder.config import get_config
+from emirecorder.server import run
 
 cli = typer.Typer()  # this is actually callable and thus can be an entry point
 
@@ -43,9 +43,9 @@ def main(
         raise typer.Exit(1)
     logger.info("Config loaded!")
 
-    app = build_app(config)
+    app = build(config)
 
-    uvicorn.run(app, host=config.host, port=config.port)
+    run(app, config)
 
 
 if __name__ == "__main__":
