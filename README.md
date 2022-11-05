@@ -14,9 +14,9 @@ emission recording 🎥
 
 This `README` provides info about the development process.
 
-For more info about the package itself
-see `emirecorder/README.md`
-or [docs](https://radio-aktywne.github.io/emirecorder).
+For more info about the package itself see
+[package `README`](emirecorder/README.md) or
+[docs](https://radio-aktywne.github.io/emirecorder).
 
 ## Quickstart (on Ubuntu)
 
