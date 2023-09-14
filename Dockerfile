@@ -1,88 +1,68 @@
-ARG MINIO_CLIENT_IMAGE_TAG=RELEASE.2022-03-17T20-25-06Z
-ARG MINICONDA_IMAGE_TAG=4.10.3-alpine
+# Use generic base image with Nix installed
+FROM nixos/nix:2.16.1 AS env
 
-FROM minio/mc:$MINIO_CLIENT_IMAGE_TAG AS mc
+# Configure Nix
+RUN echo "extra-experimental-features = nix-command flakes" >> /etc/nix/nix.conf
 
-FROM continuumio/miniconda3:$MINICONDA_IMAGE_TAG AS base
+# Set working directory to something other than root
+WORKDIR /env/
 
-COPY --from=mc /usr/bin/mc /usr/bin/mc
+# Copy Nix files
+COPY *.nix flake.lock ./
 
-# add bash, because it's not available by default on alpine
-# and ffmpeg because we need it for streaming
-# and ca-certificates for mc
-# and git to get pystreams
-RUN apk add --no-cache bash ffmpeg ca-certificates git
+# Copy env script
+COPY ./scripts/env.sh ./scripts/env.sh
 
+# Build runtime shell closure and activation script
+RUN \
+    # Mount cached store paths
+    --mount=type=cache,target=/nix-store-cache \
+    # Mount Nix evaluation cache
+    --mount=type=cache,target=/root/.cache/nix \
+    ./scripts/env.sh runtime ./build /nix-store-cache
+
+# Ubuntu is probably the safest choice for a runtime container right now
+FROM ubuntu:23.04
+
+# Use bash as default shell
+SHELL ["/bin/bash", "-c"]
+
+# Copy runtime shell closure and activation script
+COPY --from=env /env/build/closure/ /nix/store/
+COPY --from=env /env/build/activate /env/activate
+
+# Set working directory to something other than root
 WORKDIR /app/
 
-# install poetry
-COPY ./requirements.txt ./requirements.txt
-RUN --mount=type=cache,target=/root/.cache \
-    python3 -m pip install -r ./requirements.txt
+# Create app user
+RUN useradd --create-home app
 
-# create new environment
-# warning: for some reason conda can hang on "Executing transaction" for a couple of minutes
-COPY environment.yaml ./environment.yaml
-RUN --mount=type=cache,target=/opt/conda/pkgs \
-    conda env create -f ./environment.yaml
+# Create virtual environment
+RUN . /env/activate && python -m venv .venv
 
-# "activate" environment for all commands (note: ENTRYPOINT is separate from SHELL)
-SHELL ["conda", "run", "--no-capture-output", "-n", "emirecorder", "/bin/bash", "-c"]
+# Setup entrypoint for RUN commands
+COPY ./scripts/shell.sh ./scripts/shell.sh
+SHELL ["./scripts/shell.sh"]
 
-WORKDIR /app/emirecorder/
+# Copy Poetry files
+COPY poetry.lock poetry.toml pyproject.toml ./
 
-# add poetry files
-COPY ./emirecorder/pyproject.toml ./emirecorder/poetry.lock ./
+# Install dependencies only
+RUN \
+    # Mount Poetry cache
+    --mount=type=cache,target=/root/.cache/pypoetry \
+    poetry install --no-interaction --no-root --only main
 
-FROM base AS test
+# Copy source
+COPY ./src/ ./src/
 
-# install dependencies only (notice that no source code is present yet)
-RUN --mount=type=cache,target=/root/.cache \
-    poetry install --no-root --only main,test
+# Build wheel and install with pip to force non-editable install
+# See: https://github.com/python-poetry/poetry/issues/1382
+RUN poetry build --no-interaction --format wheel && \
+    python -m pip install --no-deps --no-index --no-cache-dir dist/*.whl && \
+    rm -rf dist *.egg-info
 
-# add source, tests and necessary files
-COPY ./emirecorder/src/ ./src/
-COPY ./emirecorder/tests/ ./tests/
-COPY ./emirecorder/LICENSE ./emirecorder/README.md ./
-
-# build wheel by poetry and install by pip (to force non-editable mode)
-RUN poetry build -f wheel && \
-    python -m pip install --no-deps --no-index --no-cache-dir --find-links=dist emirecorder
-
-# add entrypoint
-COPY ./entrypoint.sh ./entrypoint.sh
-
-ENTRYPOINT ["./entrypoint.sh", "pytest"]
-CMD []
-
-FROM base AS production
-
-# install dependencies only (notice that no source code is present yet)
-RUN --mount=type=cache,target=/root/.cache \
-    poetry install --no-root --only main
-
-# add source and necessary files
-COPY ./emirecorder/src/ ./src/
-COPY ./emirecorder/LICENSE ./emirecorder/README.md ./
-
-# build wheel by poetry and install by pip (to force non-editable mode)
-RUN poetry build -f wheel && \
-    python -m pip install --no-deps --no-index --no-cache-dir --find-links=dist emirecorder
-
-# add entrypoint
-COPY ./entrypoint.sh ./entrypoint.sh
-
-ENV EMIRECORDER_HOST=0.0.0.0 \
-    EMIRECORDER_PORT=31000 \
-    EMIRECORDER_TARGET_HOST=localhost \
-    EMIRECORDER_TARGET_PORT=30000 \
-    EMIRECORDER_TARGET_USER=readwrite \
-    EMIRECORDER_TARGET_PASSWORD=password \
-    EMIRECORDER_TARGET_BUCKET=live-recordings \
-    EMIRECORDER_TIMEOUT=60
-
-EXPOSE 31000
-EXPOSE 31000/udp
-
-ENTRYPOINT ["./entrypoint.sh", "emirecorder"]
+# Setup main entrypoint
+COPY ./scripts/entrypoint.sh ./scripts/entrypoint.sh
+ENTRYPOINT ["./scripts/entrypoint.sh", "emirecorder"]
 CMD []

@@ -1,1 +1,0 @@
-from emirecorder.resources import *
