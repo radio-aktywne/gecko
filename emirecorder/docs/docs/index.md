@@ -1,5 +1,0 @@
-# emirecorder
-
-emission recording 🎥
-
-TODO
