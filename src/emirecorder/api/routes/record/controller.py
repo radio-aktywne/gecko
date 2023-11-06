@@ -3,17 +3,17 @@ from litestar import Response, post
 from litestar.di import Provide
 
 from emirecorder.api.routes.record.models import PostRequest, PostResponse
-from emirecorder.api.routes.record.service import RecordService
+from emirecorder.api.routes.record.service import Service
 from emirecorder.state import State
 
 
 class DependenciesBuilder:
     """Builder for the dependencies of the controller."""
 
-    async def _build_service(self, state: State) -> RecordService:
-        return RecordService(state.config)
+    async def _build_service(self, state: State) -> Service:
+        return Service(state.config)
 
-    def build(self) -> dict[str, object]:
+    def build(self) -> dict[str, Provide]:
         return {
             "service": Provide(self._build_service),
         }
@@ -28,9 +28,7 @@ class Controller(BaseController):
         summary="Request a recording",
         description="Request a recording for a given event and return the credentials used to connect to the stream",
     )
-    async def post(
-        self, data: PostRequest, service: RecordService
-    ) -> Response[PostResponse]:
+    async def post(self, data: PostRequest, service: Service) -> Response[PostResponse]:
         credentials = await service.record(data.request)
         content = PostResponse(credentials=credentials)
         return Response(content)

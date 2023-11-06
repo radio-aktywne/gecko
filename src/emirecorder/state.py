@@ -1,6 +1,6 @@
 from litestar.datastructures import State as LitestarState
 
-from emirecorder.config import Config
+from emirecorder.config.models import Config
 
 
 class State(LitestarState):

@@ -1,4 +1,4 @@
-<h1 align="center">emirecorder</h1>
+<h1 align="center">emirecorder app</h1>
 
 <div align="center">
 

@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from emirecorder.models import SerializableModel
+from emirecorder.models.base import SerializableModel
 from emirecorder.models.data import RecordingCredentials, RecordingRequest
 
 
@@ -9,7 +9,7 @@ class PostRequest(SerializableModel):
 
     request: RecordingRequest = Field(
         ...,
-        title="Request",
+        title="PostRequest.Request",
         description="Request for a recording.",
     )
 
@@ -19,6 +19,6 @@ class PostResponse(SerializableModel):
 
     credentials: RecordingCredentials = Field(
         ...,
-        title="Credentials",
+        title="PostResponse.Credentials",
         description="Credentials for the recording.",
     )
