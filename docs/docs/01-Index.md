@@ -3,7 +3,7 @@ slug: /
 title: Index
 ---
 
-# emirecorder
+# emirecorder app
 
 Emission recording 🎥
 

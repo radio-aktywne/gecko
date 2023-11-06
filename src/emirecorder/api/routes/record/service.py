@@ -13,7 +13,7 @@ from emirecorder.models.data import Event, RecordingCredentials, RecordingReques
 from emirecorder.time import stringify, utcnow
 
 
-class RecordService:
+class Service:
     def __init__(self, config: Config) -> None:
         self._config = config
 

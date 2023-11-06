@@ -1,8 +1,8 @@
 import pytest
 from litestar.testing import AsyncTestClient
 
-from emirecorder.api import AppBuilder
-from emirecorder.config import ConfigBuilder
+from emirecorder.api.app import AppBuilder
+from emirecorder.config.builder import ConfigBuilder
 
 
 @pytest.fixture(scope="session")
