@@ -18,7 +18,7 @@ rich = "^13.6"
 litestar = "^2.3"
 uvicorn = { version = "^0.24", extras = ["standard"] }
 # Streaming utilities
-pystreams = { git = "https://github.com/radio-aktywne/package-pystreams.git", tag = "0.3.3" }
+pystreams = { git = "https://github.com/radio-aktywne/package-pystreams.git", tag = "0.3.4" }
 # For correct handling of timezones
 tzdata = "*"
 
