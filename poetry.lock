@@ -219,13 +219,13 @@ files = [
 
 [[package]]
 name = "litestar"
-version = "2.3.1"
+version = "2.3.2"
 description = "Litestar - A production-ready, highly performant, extensible ASGI API Framework"
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "litestar-2.3.1-py3-none-any.whl", hash = "sha256:f158c8540425c7cf8cc896e21a1922000da65688e0982cf8c26c863163ba59dd"},
-    {file = "litestar-2.3.1.tar.gz", hash = "sha256:c12e2fd6d53932cf4e631447fe19a0c426523fbb8e52b6bcddf71e900c7184c4"},
+    {file = "litestar-2.3.2-py3-none-any.whl", hash = "sha256:a2301e5a786fa0466a00333f99694972332a85fad69ce222179ce342d84ee0ed"},
+    {file = "litestar-2.3.2.tar.gz", hash = "sha256:983b61b5a1a07de2f8e34974e21dc2adf5c3aab767ca89cbe229cecca54b92c3"},
 ]
 
 [package.dependencies]
@@ -674,8 +674,8 @@ develop = false
 [package.source]
 type = "git"
 url = "https://github.com/radio-aktywne/package-pystreams.git"
-reference = "0.3.3"
-resolved_reference = "47463537fc780aa7c87bf33e70e068e04a93df53"
+reference = "0.3.4"
+resolved_reference = "80a7934390f6c81378c369de43a9ef567f4450b4"
 
 [[package]]
 name = "pytest"
@@ -1158,4 +1158,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "4b85b9182ba70de1fb6cf79d6e83cfc093356739bd1e058c8e13b3b8975b66ff"
+content-hash = "e25f022eb4c38bb5e0eaaa4019a405bd51b65f7515c68493bc94f749c77f5bad"
