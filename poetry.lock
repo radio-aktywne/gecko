@@ -664,7 +664,7 @@ plugins = ["importlib-metadata"]
 
 [[package]]
 name = "pystreams"
-version = "0.3.3"
+version = "0.3.4"
 description = "Streaming utilities for Python 🐍"
 optional = false
 python-versions = "^3.11"
@@ -675,7 +675,7 @@ develop = false
 type = "git"
 url = "https://github.com/radio-aktywne/package-pystreams.git"
 reference = "0.3.4"
-resolved_reference = "80a7934390f6c81378c369de43a9ef567f4450b4"
+resolved_reference = "2bd0a37b80f65045d39e15ad2589e67a21cfb82e"
 
 [[package]]
 name = "pytest"
