@@ -84,9 +84,12 @@
               s5cmd
             ];
 
+            PYTHON_SITE_PACKAGES = "${python.sitePackages}";
+
             shellHook = ''
               task install
-              source .venv/bin/activate
+              . .venv/bin/activate
+              export PYTHONPATH="''${VIRTUAL_ENV:?}/''${PYTHON_SITE_PACKAGES:?}:''${PYTHONPATH:-}"
             '';
           };
 
@@ -101,9 +104,12 @@
               cacert
             ];
 
+            PYTHON_SITE_PACKAGES = "${python.sitePackages}";
+
             shellHook = ''
               task install
-              source .venv/bin/activate
+              . .venv/bin/activate
+              export PYTHONPATH="''${VIRTUAL_ENV:?}/''${PYTHON_SITE_PACKAGES:?}:''${PYTHONPATH:-}"
             '';
           };
 
@@ -119,6 +125,8 @@
               tini
               su-exec
             ];
+
+            PYTHON_SITE_PACKAGES = "${python.sitePackages}";
           };
 
           template = pkgs.mkShell {
@@ -155,9 +163,12 @@
               s5cmd
             ];
 
+            PYTHON_SITE_PACKAGES = "${python.sitePackages}";
+
             shellHook = ''
               task install
-              source .venv/bin/activate
+              . .venv/bin/activate
+              export PYTHONPATH="''${VIRTUAL_ENV:?}/''${PYTHON_SITE_PACKAGES:?}:''${PYTHONPATH:-}"
             '';
           };
 
