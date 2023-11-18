@@ -1,7 +1,8 @@
----
 services:
   emirecorder:
-    build: .
+    build:
+      context: ./
+      network: host
     network_mode: host
     environment:
       - "EMIRECORDER__SERVER__HOST=${EMIRECORDER__SERVER__HOST:-0.0.0.0}"
