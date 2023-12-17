@@ -8,12 +8,15 @@ from pystreams.s3 import S3StreamMetadata
 from pystreams.srt import SRTNode
 from pystreams.stream import Stream
 
+from emirecorder.api.routes.record.models import RecordRequest, RecordResponse
 from emirecorder.config.models import Config
-from emirecorder.models.data import Event, RecordingCredentials, RecordingRequest
+from emirecorder.models.data import Event, RecordingCredentials
 from emirecorder.time import stringify, utcnow
 
 
 class Service:
+    """Service for the record endpoint."""
+
     def __init__(self, config: Config) -> None:
         self._config = config
 
@@ -98,7 +101,9 @@ class Service:
     async def _run_stream(self, metadata: PipedStreamMetadata) -> Stream:
         return await PipedStreamFactory().create(metadata)
 
-    async def record(self, request: RecordingRequest) -> RecordingCredentials:
+    async def record(self, request: RecordRequest) -> RecordResponse:
+        """Starts a recording stream and returns the credentials to access it."""
+
         credentials = self._create_credentials()
         metadata = self._build_stream_metadata(credentials, request.event)
 

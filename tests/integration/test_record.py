@@ -10,14 +10,12 @@ def data() -> dict:
     """Reusable data."""
 
     return {
-        "request": {
-            "event": {
-                "show": {
-                    "label": "foo",
-                },
-                "start": None,
-                "end": None,
+        "event": {
+            "show": {
+                "label": "foo",
             },
+            "start": None,
+            "end": None,
         },
     }
 
@@ -31,16 +29,13 @@ async def test_post(client: AsyncTestClient, data: dict) -> None:
     assert response.status_code == HTTP_201_CREATED
 
     data = response.json()
-    assert "credentials" in data
+    assert "token" in data
+    assert "expiresAt" in data
 
-    credentials = data["credentials"]
-    assert "token" in credentials
-    assert "expiresAt" in credentials
-
-    token = credentials["token"]
+    token = data["token"]
     assert isinstance(token, str)
     assert len(token) > 0
 
-    expires_at = credentials["expiresAt"]
+    expires_at = data["expiresAt"]
     assert isinstance(expires_at, str)
     assert datetime.fromisoformat(expires_at)
