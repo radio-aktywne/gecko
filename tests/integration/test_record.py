@@ -20,11 +20,11 @@ def data() -> dict:
     }
 
 
+@pytest.mark.asyncio(scope="session")
 async def test_post(client: AsyncTestClient, data: dict) -> None:
     """Test if POST /record returns correct response."""
 
-    async with client as client:
-        response = await client.post("/record", json=data)
+    response = await client.post("/record", json=data)
 
     assert response.status_code == HTTP_201_CREATED
 
