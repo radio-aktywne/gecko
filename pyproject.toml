@@ -24,8 +24,12 @@ pystreams = { git = "https://github.com/radio-aktywne/package-pystreams.git", ta
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4"
+# Asyncio support for pytest
 pytest-asyncio = "^0.23"
+# Running dependent services in containers
 testcontainers = "^3.7"
+# Async HTTP requests
+httpx = "^0.26"
 
 [tool.poetry.scripts]
 # Register CLI
