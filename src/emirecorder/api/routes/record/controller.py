@@ -1,6 +1,7 @@
 from litestar import Controller as BaseController
 from litestar import post
 from litestar.di import Provide
+from litestar.response import Response
 
 from emirecorder.api.routes.record.models import RecordRequest, RecordResponse
 from emirecorder.api.routes.record.service import Service
@@ -28,5 +29,8 @@ class Controller(BaseController):
         summary="Request a recording",
         description="Request a recording for a given event and return the credentials used to connect to the stream.",
     )
-    async def record(self, data: RecordRequest, service: Service) -> RecordResponse:
-        return await service.record(data)
+    async def record(
+        self, data: RecordRequest, service: Service
+    ) -> Response[RecordResponse]:
+        response = await service.record(data)
+        return Response(response)
