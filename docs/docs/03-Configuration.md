@@ -8,17 +8,20 @@ title: Configuration
 You can configure the app at runtime using various environment variables:
 
 - `EMIRECORDER__SERVER__HOST` -
-  host to run the app on
+  host to run the server on
   (default: `0.0.0.0`)
 - `EMIRECORDER__SERVER__PORT` -
-  port to run the app on
+  port to run the server on
   (default: `31000`)
-- `EMIRECORDER__RECORDING__TIMEOUT` -
-  number of seconds to wait for a connection
-  (default: `60`)
-- `EMIRECORDER__RECORDING__FORMAT` -
-  format to record in
-  (default: `ogg`)
+- `EMIRECORDER__RECORDER__PORTS` -
+  ports to select from when listening for connections
+  (default: `31000`)
+- `EMIRECORDER__RECORDER__TIMEOUT` -
+  time after which a stream will be stopped if no connections are made
+  (default: `PT1M`)
+- `EMIRECORDER__RECORDER__WINDOW` -
+  time window to search for event instances around the current time
+  (default: `PT1H`)
 - `EMIRECORDER__EMIARCHIVE__HOST` -
   host to connect to
   (default: `localhost`)
@@ -34,3 +37,9 @@ You can configure the app at runtime using various environment variables:
 - `EMIRECORDER__EMIARCHIVE__BUCKET` -
   name of the bucket to use for uploads
   (default: `live`)
+- `EMIRECORDER__EMISHOWS__HOST` -
+  host to connect to
+  (default: `localhost`)
+- `EMIRECORDER__EMISHOWS__PORT` -
+  port to connect to
+  (default: `35000`)

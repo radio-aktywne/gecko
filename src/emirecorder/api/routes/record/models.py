@@ -1,4 +1,4 @@
-from emirecorder.models.data import RecordingCredentials, RecordingRequest
+from emirecorder.recording import models as rm
 
-RecordRequest = RecordingRequest
-RecordResponse = RecordingCredentials
+RecordRequest = rm.Request
+RecordResponse = rm.Response

@@ -1,4 +1,7 @@
-from pydantic import BaseModel, Field
+from datetime import timedelta
+from typing import Annotated
+
+from pydantic import BaseModel, Field, field_validator
 
 from emirecorder.config.base import BaseConfig
 
@@ -20,20 +23,33 @@ class ServerConfig(BaseModel):
     )
 
 
-class RecordingConfig(BaseModel):
-    """Configuration for the recording process."""
+class RecorderConfig(BaseModel):
+    """Configuration for the recorder."""
 
-    timeout: int = Field(
-        60,
+    ports: set[Annotated[int, Field(..., ge=1, le=65535)]] = Field(
+        {31000},
+        min_length=1,
+        title="Ports",
+        description="Ports to select from when listening for connections.",
+    )
+    timeout: timedelta = Field(
+        timedelta(minutes=1),
         ge=0,
         title="Timeout",
-        description="Number of seconds to wait for a connection.",
+        description="Time after which a stream will be stopped if no connections are made.",
     )
-    format: str = Field(
-        "ogg",
-        title="Format",
-        description="Format to record in.",
+    window: timedelta = Field(
+        timedelta(hours=1),
+        title="Window",
+        description="Time window to search for event instances around the current time.",
     )
+
+    @field_validator("ports", mode="before")
+    @classmethod
+    def validate_ports(cls, v):
+        if isinstance(v, str):
+            v = set(v.split(","))
+        return v
 
 
 class EmiarchiveConfig(BaseModel):
@@ -68,6 +84,23 @@ class EmiarchiveConfig(BaseModel):
     )
 
 
+class EmishowsConfig(BaseModel):
+    """Configuration for the Emishows service."""
+
+    host: str = Field(
+        "localhost",
+        title="Host",
+        description="Host to connect to.",
+    )
+    port: int = Field(
+        35000,
+        ge=0,
+        le=65535,
+        title="Port",
+        description="Port to connect to.",
+    )
+
+
 class Config(BaseConfig):
     """Configuration for the application."""
 
@@ -76,13 +109,18 @@ class Config(BaseConfig):
         title="Server",
         description="Configuration for the server.",
     )
-    recording: RecordingConfig = Field(
-        RecordingConfig(),
-        title="Recording",
-        description="Configuration for the recording process.",
+    recorder: RecorderConfig = Field(
+        RecorderConfig(),
+        title="Recorder",
+        description="Configuration for the recorder.",
     )
     emiarchive: EmiarchiveConfig = Field(
         EmiarchiveConfig(),
         title="Emiarchive",
         description="Configuration for the Emiarchive service.",
+    )
+    emishows: EmishowsConfig = Field(
+        EmishowsConfig(),
+        title="Emishows",
+        description="Configuration for the Emishows service.",
     )

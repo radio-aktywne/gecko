@@ -1,6 +1,8 @@
 from litestar.datastructures import State as LitestarState
 
 from emirecorder.config.models import Config
+from emirecorder.emishows.service import EmishowsService
+from emirecorder.recording.recorder import Recorder
 
 
 class State(LitestarState):
@@ -11,3 +13,5 @@ class State(LitestarState):
     """
 
     config: Config
+    emishows: EmishowsService
+    recorder: Recorder
