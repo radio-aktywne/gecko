@@ -26,6 +26,11 @@ class ServerConfig(BaseModel):
 class RecorderConfig(BaseModel):
     """Configuration for the recorder."""
 
+    host: str = Field(
+        "0.0.0.0",
+        title="Host",
+        description="Host to listen for connections on.",
+    )
     ports: set[Annotated[int, Field(..., ge=1, le=65535)]] = Field(
         {31000},
         min_length=1,
