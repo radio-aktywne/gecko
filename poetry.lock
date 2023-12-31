@@ -226,6 +226,24 @@ files = [
 python-dateutil = ">=2.4"
 
 [[package]]
+name = "gracy"
+version = "1.32.0"
+description = "Gracefully manage your API interactions"
+optional = false
+python-versions = ">=3.8.1,<4.0"
+files = [
+    {file = "gracy-1.32.0-py3-none-any.whl", hash = "sha256:8aed8e1db6d1ff6b21393e4b7a7d038fbf360946dfbdf49d275aa01253bc3ab1"},
+    {file = "gracy-1.32.0.tar.gz", hash = "sha256:427fa3974d88f4fa4744c6057c09c29dbeafac68d7169b24a9f3d72204c61ce2"},
+]
+
+[package.dependencies]
+httpx = ">=0.23.0"
+
+[package.extras]
+pymongo = ["pymongo"]
+rich = ["rich"]
+
+[[package]]
 name = "h11"
 version = "0.14.0"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
@@ -1464,4 +1482,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "76466d71ae6f69ae028480d43a31e1148f58b00705bcf9c691017672580f10b4"
+content-hash = "ef9308c053ee45d7f6e6250c2420278ed575b0eedd3f13d7b6f98763e17993f0"

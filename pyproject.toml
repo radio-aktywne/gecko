@@ -21,6 +21,8 @@ uvicorn = { version = "^0.25", extras = ["standard"] }
 tzdata = "*"
 # Streaming utilities
 pystreams = { git = "https://github.com/radio-aktywne/package-pystreams.git", tag = "0.5.0" }
+# Helps building API clients
+gracy = "^1.32"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4"

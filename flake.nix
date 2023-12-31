@@ -46,6 +46,7 @@
         copier = pkgs.copier;
         ffmpeg = pkgs.ffmpeg;
         s5cmd = pkgs.s5cmd;
+        usql = pkgs.usql;
         tini = pkgs.tini;
         su-exec = pkgs.su-exec;
       in {
@@ -82,6 +83,7 @@
               copier
               ffmpeg
               s5cmd
+              usql
             ];
 
             PYTHON_SITE_PACKAGES = "${python.sitePackages}";
@@ -175,6 +177,7 @@
               cacert
               ffmpeg
               s5cmd
+              usql
             ];
 
             PYTHON_SITE_PACKAGES = "${python.sitePackages}";
