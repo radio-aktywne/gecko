@@ -108,6 +108,11 @@ class Recorder:
             expires_at=self._get_token_expiry(),
         )
 
+    def _get_host(self) -> str:
+        """Returns the host to use for a recording."""
+
+        return self._config.recorder.host
+
     async def _reserve_port(self) -> int:
         """Reserves a port for a recording."""
 
@@ -145,6 +150,7 @@ class Recorder:
         event: Event,
         instance: EventInstance,
         credentials: Credentials,
+        host: str,
         port: int,
         format: Format,
     ) -> None:
@@ -155,6 +161,7 @@ class Recorder:
             event=event,
             instance=instance,
             credentials=credentials,
+            host=host,
             port=port,
             format=format,
         )
@@ -173,12 +180,15 @@ class Recorder:
         )
 
         credentials = self._generate_credentials()
+        host = self._get_host()
         port = await self._reserve_port()
 
         try:
-            await self._run(schedule.event, instance, credentials, port, request.format)
+            await self._run(
+                schedule.event, instance, credentials, host, port, request.format
+            )
 
-            return Response(credentials=credentials, port=port)
+            return Response(credentials=credentials, host=host, port=port)
         except Exception:
             await self._free_port(port)
             raise

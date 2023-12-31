@@ -18,7 +18,9 @@ class StreamRunner:
     def __init__(self, config: Config) -> None:
         self._config = config
 
-    def _build_ffmpeg_input(self, credentials: Credentials, port: int) -> FFmpegNode:
+    def _build_ffmpeg_input(
+        self, credentials: Credentials, host: str, port: int
+    ) -> FFmpegNode:
         """Builds an FFmpeg input node."""
 
         timeout = credentials.expires_at - utcnow().replace(tzinfo=None)
@@ -26,7 +28,7 @@ class StreamRunner:
         timeout = max(timeout, 0)
 
         return SRTNode(
-            host=self._config.server.host,
+            host=host,
             port=port,
             options={
                 "re": True,
@@ -47,13 +49,14 @@ class StreamRunner:
     def _build_ffmpeg_metadata(
         self,
         credentials: Credentials,
+        host: str,
         port: int,
         format: Format,
     ) -> FFmpegStreamMetadata:
         """Builds FFmpeg stream metadata."""
 
         return FFmpegStreamMetadata(
-            input=self._build_ffmpeg_input(credentials, port),
+            input=self._build_ffmpeg_input(credentials, host, port),
             output=self._build_ffmpeg_output(format),
         )
 
@@ -94,6 +97,7 @@ class StreamRunner:
         event: Event,
         instance: EventInstance,
         credentials: Credentials,
+        host: str,
         port: int,
         format: Format,
     ) -> PipedStreamMetadata:
@@ -101,7 +105,7 @@ class StreamRunner:
 
         return PipedStreamMetadata(
             streams=[
-                self._build_ffmpeg_metadata(credentials, port, format),
+                self._build_ffmpeg_metadata(credentials, host, port, format),
                 self._build_s3_metadata(event, instance, format),
             ]
         )
@@ -116,12 +120,13 @@ class StreamRunner:
         event: Event,
         instance: EventInstance,
         credentials: Credentials,
+        host: str,
         port: int,
         format: Format,
     ) -> Stream:
         """Run the stream."""
 
         metadata = self._build_stream_metadata(
-            event, instance, credentials, port, format
+            event, instance, credentials, host, port, format
         )
         return await self._run_stream(metadata)

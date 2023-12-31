@@ -13,6 +13,9 @@ You can configure the app at runtime using various environment variables:
 - `EMIRECORDER__SERVER__PORT` -
   port to run the server on
   (default: `31000`)
+- `EMIRECORDER__RECORDER__HOST` -
+  host to listen for connections on
+  (default: `0.0.0.0`)
 - `EMIRECORDER__RECORDER__PORTS` -
   ports to select from when listening for connections
   (default: `31000`)

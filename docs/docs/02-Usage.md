@@ -20,9 +20,10 @@ curl \
     http://localhost:31000/record
 ```
 
-You should receive a response containing the credentials and port number
+You should receive a response containing
+a token, host address and port number
 that you can use to connect to the stream and start sending audio.
-The credentials are only valid for a limited time.
+The token is only valid for a limited time.
 
 ## Sending audio
 
@@ -36,7 +37,7 @@ by default you should use [`Opus`](https://opus-codec.org) and
 They are free and open source, focused on quality and efficiency,
 and support embedding metadata into the stream.
 
-Remember to use the token and port you received in the previous step
+Remember to use the token, host and port you received in the previous step
 to connect to the stream.
 
 For example, you can use [`Liquidsoap`](https://www.liquidsoap.info) for that:

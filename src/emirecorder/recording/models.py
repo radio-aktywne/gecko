@@ -46,6 +46,11 @@ class Response(SerializableModel):
         title="Response.Credentials",
         description="Credentials to use to connect to the stream.",
     )
+    host: str = Field(
+        ...,
+        title="Response.Host",
+        description="Host to use to connect to the stream.",
+    )
     port: int = Field(
         ...,
         title="Response.Port",
