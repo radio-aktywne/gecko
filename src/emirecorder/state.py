@@ -9,7 +9,9 @@ class State(LitestarState):
     """Use this class as a type hint for the state of your application.
 
     Attributes:
-        config: The configuration for the application.
+        config: Configuration for the application.
+        emishows: Service for emishows API.
+        recorder: Recorder for managing recordings.
     """
 
     config: Config
