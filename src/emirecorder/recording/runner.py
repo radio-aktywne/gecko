@@ -29,7 +29,6 @@ class StreamRunner:
             host=self._config.recorder.host,
             port=port,
             options={
-                "re": True,
                 "mode": "listener",
                 "listen_timeout": timeout,
                 "passphrase": credentials.token,
