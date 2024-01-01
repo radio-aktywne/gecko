@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "emirecorder"
-version = "0.10.0"
+version = "0.10.1"
 description = "Emission recording 🎥"
 authors = ["radio-aktywne <it@radioaktywne.pl>"]
 
