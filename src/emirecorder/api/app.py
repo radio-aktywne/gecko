@@ -7,14 +7,14 @@ from litestar import Litestar, Router
 from litestar.contrib.pydantic import PydanticPlugin
 from litestar.openapi import OpenAPIConfig
 from litestar.plugins import PluginProtocol
+from pylocks.asyncio import AsyncioLock
+from pystores.memory import MemoryStore
 
 from emirecorder.api.routes.router import router
 from emirecorder.config.models import Config
 from emirecorder.emishows.service import EmishowsService
-from emirecorder.locks.asyncio import AsyncioLock
 from emirecorder.recording.recorder import Recorder
 from emirecorder.state import State
-from emirecorder.stores.memory import MemoryStore
 
 
 class AppBuilder:
