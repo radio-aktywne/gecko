@@ -52,8 +52,11 @@ class RecorderConfig(BaseModel):
     @field_validator("ports", mode="before")
     @classmethod
     def validate_ports(cls, v):
-        if isinstance(v, str):
+        if isinstance(v, int):
+            v = {v}
+        elif isinstance(v, str):
             v = set(v.split(","))
+
         return v
 
 
