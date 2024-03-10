@@ -1,7 +1,7 @@
 {
   inputs = {
     nixpkgs = {
-      url = "github:NixOS/nixpkgs/nixos-unstable";
+      url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     };
 
     flake-parts = {
@@ -36,7 +36,7 @@
         ...
       }: let
         node = pkgs.nodejs;
-        python = pkgs.python312;
+        python = pkgs.python311;
         nil = pkgs.nil;
         task = pkgs.go-task;
         coreutils = pkgs.coreutils;
@@ -86,13 +86,8 @@
               usql
             ];
 
-            PYTHON_SITE_PACKAGES = "${python.sitePackages}";
-
             shellHook = ''
               export TMPDIR=/tmp
-              task install
-              . .venv/bin/activate
-              export PYTHONPATH="''${VIRTUAL_ENV:?}/''${PYTHON_SITE_PACKAGES:?}:''${PYTHONPATH:-}"
             '';
           };
 
@@ -107,13 +102,8 @@
               cacert
             ];
 
-            PYTHON_SITE_PACKAGES = "${python.sitePackages}";
-
             shellHook = ''
               export TMPDIR=/tmp
-              task install
-              . .venv/bin/activate
-              export PYTHONPATH="''${VIRTUAL_ENV:?}/''${PYTHON_SITE_PACKAGES:?}:''${PYTHONPATH:-}"
             '';
           };
 
@@ -129,8 +119,6 @@
               tini
               su-exec
             ];
-
-            PYTHON_SITE_PACKAGES = "${python.sitePackages}";
 
             shellHook = ''
               export TMPDIR=/tmp
@@ -180,13 +168,8 @@
               usql
             ];
 
-            PYTHON_SITE_PACKAGES = "${python.sitePackages}";
-
             shellHook = ''
               export TMPDIR=/tmp
-              task install
-              . .venv/bin/activate
-              export PYTHONPATH="''${VIRTUAL_ENV:?}/''${PYTHON_SITE_PACKAGES:?}:''${PYTHONPATH:-}"
             '';
           };
 

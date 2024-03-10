@@ -9,7 +9,7 @@ from pystreams.stream import Stream
 from emirecorder.config.models import Config
 from emirecorder.emishows.models import Event, EventInstance
 from emirecorder.recording.models import Credentials, Format
-from emirecorder.time import stringify, utcnow
+from emirecorder.time import naiveutcnow, stringify
 
 
 class StreamRunner:
@@ -21,7 +21,7 @@ class StreamRunner:
     def _build_ffmpeg_input(self, credentials: Credentials, port: int) -> FFmpegNode:
         """Builds an FFmpeg input node."""
 
-        timeout = credentials.expires_at - utcnow().replace(tzinfo=None)
+        timeout = credentials.expires_at - naiveutcnow()
         timeout = ceil(timeout.total_seconds() * 1000000)
         timeout = max(timeout, 0)
 
