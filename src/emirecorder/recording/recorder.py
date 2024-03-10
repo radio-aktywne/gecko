@@ -1,6 +1,6 @@
 import asyncio
 import secrets
-from datetime import timedelta
+from datetime import timedelta, timezone
 from uuid import UUID
 
 from pydantic import NaiveDatetime
@@ -18,7 +18,7 @@ from emirecorder.recording.errors import (
 )
 from emirecorder.recording.models import Credentials, Format, Request, Response
 from emirecorder.recording.runner import StreamRunner
-from emirecorder.time import utcnow, utczone
+from emirecorder.time import naiveutcnow
 
 
 class Recorder:
@@ -39,7 +39,7 @@ class Recorder:
     def _get_reference_time(self) -> NaiveDatetime:
         """Returns a reference time for finding the nearest event instance."""
 
-        return utcnow().replace(tzinfo=None)
+        return naiveutcnow()
 
     def _get_time_window(
         self, reference: NaiveDatetime
@@ -78,9 +78,9 @@ class Recorder:
         """Finds the nearest instance of an event."""
 
         def _compare(instance: EventInstance) -> timedelta:
-            timezone = ZoneInfo(event.timezone)
-            start = instance.start.replace(tzinfo=timezone)
-            start = start.astimezone(utczone()).replace(tzinfo=None)
+            tz = ZoneInfo(event.timezone)
+            start = instance.start.replace(tzinfo=tz)
+            start = start.astimezone(timezone.utc).replace(tzinfo=None)
             return abs(start - reference)
 
         instance = min(instances, key=_compare, default=None)
@@ -98,7 +98,7 @@ class Recorder:
     def _get_token_expiry(self) -> NaiveDatetime:
         """Returns the expiry time for credentials."""
 
-        return utcnow().replace(tzinfo=None) + self._config.recorder.timeout
+        return naiveutcnow() + self._config.recorder.timeout
 
     def _generate_credentials(self) -> Credentials:
         """Generates credentials for a recording."""

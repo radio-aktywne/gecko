@@ -3,7 +3,6 @@ services:
     build:
       context: ./
       network: host
-    network_mode: host
     environment:
       - "EMIRECORDER__SERVER__HOST=${EMIRECORDER__SERVER__HOST:-0.0.0.0}"
       - "EMIRECORDER__SERVER__PORT=${EMIRECORDER__SERVER__PORT:-31000}"
@@ -18,3 +17,4 @@ services:
       - "EMIRECORDER__EMIARCHIVE__BUCKET=${EMIRECORDER__EMIARCHIVE__BUCKET:-live}"
       - "EMIRECORDER__EMISHOWS__HOST=${EMIRECORDER__EMISHOWS__HOST:-localhost}"
       - "EMIRECORDER__EMISHOWS__PORT=${EMIRECORDER__EMISHOWS__PORT:-35000}"
+    network_mode: host
