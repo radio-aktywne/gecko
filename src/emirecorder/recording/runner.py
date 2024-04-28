@@ -59,7 +59,7 @@ class StreamRunner:
     def _build_s3_endpoint(self) -> str:
         """Builds an S3 endpoint URL."""
 
-        return f"http://{self._config.emiarchive.host}:{self._config.emiarchive.port}"
+        return self._config.emiarchive.s3.url
 
     def _build_s3_path(
         self,
@@ -82,9 +82,9 @@ class StreamRunner:
 
         return S3StreamMetadata(
             endpoint=self._build_s3_endpoint(),
-            user=self._config.emiarchive.user,
-            password=self._config.emiarchive.password,
-            bucket=self._config.emiarchive.bucket,
+            user=self._config.emiarchive.s3.user,
+            password=self._config.emiarchive.s3.password,
+            bucket=self._config.emiarchive.s3.bucket,
             path=self._build_s3_path(event, instance, format),
         )
 
