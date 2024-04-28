@@ -29,7 +29,7 @@ class EmishowsServiceBase(Gracy[EmishowsEndpoint]):
 
     def __init__(self, config: EmishowsConfig, *args, **kwargs) -> None:
         class Config:
-            BASE_URL = f"http://{config.host}:{config.port}"
+            BASE_URL = config.http.url
             SETTINGS = GracyConfig(
                 retry=GracefulRetry(
                     delay=1,
