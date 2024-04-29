@@ -6,6 +6,34 @@ from pydantic import BaseModel, Field, field_validator
 from emirecorder.config.base import BaseConfig
 
 
+class ServerPortsConfig(BaseModel):
+    """Configuration for the server ports."""
+
+    http: int = Field(
+        31000,
+        ge=1,
+        le=65535,
+        title="HTTP",
+        description="Port to listen for HTTP requests on.",
+    )
+    srt: set[Annotated[int, Field(..., ge=1, le=65535)]] = Field(
+        {31000},
+        min_length=1,
+        title="SRT",
+        description="Ports to select from when listening for SRT streams.",
+    )
+
+    @field_validator("srt", mode="before")
+    @classmethod
+    def validate_srt(cls, v):
+        if isinstance(v, int):
+            v = {v}
+        elif isinstance(v, str):
+            v = set(v.split(","))
+
+        return v
+
+
 class ServerConfig(BaseModel):
     """Configuration for the server."""
 
@@ -14,29 +42,16 @@ class ServerConfig(BaseModel):
         title="Host",
         description="Host to run the server on.",
     )
-    port: int = Field(
-        31000,
-        ge=0,
-        le=65535,
-        title="Port",
-        description="Port to run the server on.",
+    ports: ServerPortsConfig = Field(
+        ServerPortsConfig(),
+        title="Ports",
+        description="Configuration for the server ports.",
     )
 
 
 class RecorderConfig(BaseModel):
     """Configuration for the recorder."""
 
-    host: str = Field(
-        "0.0.0.0",
-        title="Host",
-        description="Host to listen for connections on.",
-    )
-    ports: set[Annotated[int, Field(..., ge=1, le=65535)]] = Field(
-        {31000},
-        min_length=1,
-        title="Ports",
-        description="Ports to select from when listening for connections.",
-    )
     timeout: timedelta = Field(
         timedelta(minutes=1),
         ge=0,
@@ -48,16 +63,6 @@ class RecorderConfig(BaseModel):
         title="Window",
         description="Time window to search for event instances around the current time.",
     )
-
-    @field_validator("ports", mode="before")
-    @classmethod
-    def validate_ports(cls, v):
-        if isinstance(v, int):
-            v = {v}
-        elif isinstance(v, str):
-            v = set(v.split(","))
-
-        return v
 
 
 class EmiarchiveS3Config(BaseModel):

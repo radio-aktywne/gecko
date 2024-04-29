@@ -26,7 +26,7 @@ class StreamRunner:
         timeout = max(timeout, 0)
 
         return SRTNode(
-            host=self._config.recorder.host,
+            host=self._config.server.host,
             port=port,
             options={
                 "mode": "listener",
