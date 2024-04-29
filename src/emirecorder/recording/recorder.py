@@ -113,7 +113,7 @@ class Recorder:
 
         async with self._lock:
             used = await self._store.get()
-            available = self._config.recorder.ports - used
+            available = self._config.server.ports.srt - used
 
             if not available:
                 raise NoPortsAvailableError()

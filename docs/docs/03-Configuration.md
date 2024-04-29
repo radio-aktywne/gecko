@@ -10,14 +10,11 @@ You can configure the app at runtime using various environment variables:
 - `EMIRECORDER__SERVER__HOST` -
   host to run the server on
   (default: `0.0.0.0`)
-- `EMIRECORDER__SERVER__PORT` -
-  port to run the server on
+- `EMIRECORDER__SERVER__PORTS__HTTP` -
+  port to listen for HTTP requests on
   (default: `31000`)
-- `EMIRECORDER__RECORDER__HOST` -
-  host to listen for connections on
-  (default: `0.0.0.0`)
-- `EMIRECORDER__RECORDER__PORTS` -
-  ports to select from when listening for connections
+- `EMIRECORDER__SERVER__PORTS__SRT` -
+  ports to select from when listening for SRT streams
   (default: `31000`)
 - `EMIRECORDER__RECORDER__TIMEOUT` -
   time after which a stream will be stopped if no connections are made
