@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import Field, NaiveDatetime
 
-from emirecorder.models.base import SerializableModel
+from emirecords.models.base import SerializableModel
 
 Format = Literal["ogg"]
 

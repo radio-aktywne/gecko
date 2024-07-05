@@ -3,14 +3,14 @@ from litestar import post
 from litestar.di import Provide
 from litestar.response import Response
 
-from emirecorder.api.exceptions import ConflictException, UnprocessableContentException
-from emirecorder.api.routes.record.errors import (
+from emirecords.api.exceptions import ConflictException, UnprocessableContentException
+from emirecords.api.routes.record.errors import (
     InstanceNotFoundError,
     RecorderBusyError,
 )
-from emirecorder.api.routes.record.models import RecordRequest, RecordResponse
-from emirecorder.api.routes.record.service import Service
-from emirecorder.state import State
+from emirecords.api.routes.record.models import RecordRequest, RecordResponse
+from emirecords.api.routes.record.service import Service
+from emirecords.state import State
 
 
 class DependenciesBuilder:

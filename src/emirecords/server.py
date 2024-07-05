@@ -1,7 +1,7 @@
 import uvicorn
 from litestar import Litestar
 
-from emirecorder.config.models import Config
+from emirecords.config.models import Config
 
 
 class Server:

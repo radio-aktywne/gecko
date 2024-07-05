@@ -3,7 +3,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, Field, field_validator
 
-from emirecorder.config.base import BaseConfig
+from emirecords.config.base import BaseConfig
 
 
 class ServerPortsConfig(BaseModel):
@@ -65,8 +65,8 @@ class RecorderConfig(BaseModel):
     )
 
 
-class EmiarchiveS3Config(BaseModel):
-    """Configuration for the Emiarchive S3 API."""
+class DatarecordsS3Config(BaseModel):
+    """Configuration for the Datarecords S3 API."""
 
     secure: bool = Field(
         False,
@@ -110,11 +110,11 @@ class EmiarchiveS3Config(BaseModel):
         return url
 
 
-class EmiarchiveConfig(BaseModel):
-    """Configuration for the Emiarchive service."""
+class DatarecordsConfig(BaseModel):
+    """Configuration for the Datarecords database."""
 
-    s3: EmiarchiveS3Config = Field(
-        EmiarchiveS3Config(),
+    s3: DatarecordsS3Config = Field(
+        DatarecordsS3Config(),
         title="S3",
         description="Configuration for the S3 API.",
     )
@@ -181,10 +181,10 @@ class Config(BaseConfig):
         title="Recorder",
         description="Configuration for the recorder.",
     )
-    emiarchive: EmiarchiveConfig = Field(
-        EmiarchiveConfig(),
-        title="Emiarchive",
-        description="Configuration for the Emiarchive service.",
+    datarecords: DatarecordsConfig = Field(
+        DatarecordsConfig(),
+        title="Datarecords",
+        description="Configuration for the Datarecords database.",
     )
     emishows: EmishowsConfig = Field(
         EmishowsConfig(),

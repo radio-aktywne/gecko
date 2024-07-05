@@ -6,10 +6,10 @@ from pystreams.s3 import S3StreamMetadata
 from pystreams.srt import SRTNode
 from pystreams.stream import Stream
 
-from emirecorder.config.models import Config
-from emirecorder.emishows.models import Event, EventInstance
-from emirecorder.recording.models import Credentials, Format
-from emirecorder.time import naiveutcnow, stringify
+from emirecords.config.models import Config
+from emirecords.emishows.models import Event, EventInstance
+from emirecords.recording.models import Credentials, Format
+from emirecords.time import naiveutcnow, stringify
 
 
 class StreamRunner:
@@ -59,7 +59,7 @@ class StreamRunner:
     def _build_s3_endpoint(self) -> str:
         """Builds an S3 endpoint URL."""
 
-        return self._config.emiarchive.s3.url
+        return self._config.datarecords.s3.url
 
     def _build_s3_path(
         self,
@@ -82,9 +82,9 @@ class StreamRunner:
 
         return S3StreamMetadata(
             endpoint=self._build_s3_endpoint(),
-            user=self._config.emiarchive.s3.user,
-            password=self._config.emiarchive.s3.password,
-            bucket=self._config.emiarchive.s3.bucket,
+            user=self._config.datarecords.s3.user,
+            password=self._config.datarecords.s3.password,
+            bucket=self._config.datarecords.s3.bucket,
             path=self._build_s3_path(event, instance, format),
         )
 

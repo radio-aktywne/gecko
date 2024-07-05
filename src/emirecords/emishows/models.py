@@ -5,7 +5,7 @@ from pydantic import AfterValidator, Field, NaiveDatetime
 from typing_extensions import TypedDict
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from emirecorder.models.base import SerializableModel
+from emirecords.models.base import SerializableModel
 
 SortMode = Literal["default", "insensitive"]
 SortOrder = Literal["asc", "desc"]

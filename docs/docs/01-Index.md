@@ -3,10 +3,10 @@ slug: /
 title: Index
 ---
 
-# emirecorder app
+# emirecords app
 
 Emission recording 🎥
 
 ## 💡 About
 
-`emirecorder` is a service for recording live audio streams.
+`emirecords` is a service for recording live audio streams.

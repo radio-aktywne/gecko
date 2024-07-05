@@ -1,6 +1,6 @@
 from litestar import Router
 
-from emirecorder.api.routes.record.controller import Controller
+from emirecords.api.routes.record.controller import Controller
 
 router = Router(
     path="/record",

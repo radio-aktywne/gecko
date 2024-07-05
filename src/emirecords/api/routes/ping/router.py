@@ -1,6 +1,6 @@
 from litestar import Router
 
-from emirecorder.api.routes.ping.controller import Controller
+from emirecords.api.routes.ping.controller import Controller
 
 router = Router(
     path="/ping",

@@ -63,7 +63,7 @@ RUN poetry build --no-interaction --format wheel && \
 
 # Setup main entrypoint
 COPY scripts/entrypoint.sh scripts/entrypoint.sh
-ENTRYPOINT ["/app/scripts/entrypoint.sh", "poetry", "run", "--", "emirecorder"]
+ENTRYPOINT ["/app/scripts/entrypoint.sh", "poetry", "run", "--", "emirecords"]
 CMD []
 
 # Setup ownership

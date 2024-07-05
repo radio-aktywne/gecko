@@ -2,10 +2,10 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "emirecorder",
+      "name": "emirecords",
       "type": "debugpy",
       "request": "launch",
-      "module": "emirecorder",
+      "module": "emirecords",
       "justMyCode": false
     }
   ]

@@ -2,17 +2,17 @@
 _commit: 0.12.1
 _src_path: gh:radio-aktywne/template-app-litestar
 accountname: radio-aktywne
-appname: emirecorder
+appname: emirecords
 description: Emission recording 🎥
 docs: true
-docsurl: https://radio-aktywne.github.io/app-emirecorder
+docsurl: https://radio-aktywne.github.io/app-emirecords
 email: it@radioaktywne.pl
-envprefix: EMIRECORDER
+envprefix: EMIRECORDS
 events: false
-imagename: apps/emirecorder
-importname: emirecorder
+imagename: apps/emirecords
+importname: emirecords
 port: 31000
 registry: true
 releases: true
-reponame: app-emirecorder
-repourl: https://github.com/radio-aktywne/app-emirecorder
+reponame: app-emirecords
+repourl: https://github.com/radio-aktywne/app-emirecords

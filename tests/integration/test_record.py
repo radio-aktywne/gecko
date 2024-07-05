@@ -9,7 +9,7 @@ from httpx import AsyncClient
 from litestar.status_codes import HTTP_201_CREATED
 from litestar.testing import AsyncTestClient
 
-from emirecorder.time import naiveutcnow, stringify
+from emirecords.time import naiveutcnow, stringify
 
 
 @pytest_asyncio.fixture(scope="session")
