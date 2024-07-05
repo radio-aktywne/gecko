@@ -2,12 +2,12 @@ from typing import Optional
 
 import typer
 
-from emirecorder.api.app import AppBuilder
-from emirecorder.cli import CliBuilder
-from emirecorder.config.builder import ConfigBuilder
-from emirecorder.config.errors import ConfigError
-from emirecorder.console import FallbackConsoleBuilder
-from emirecorder.server import Server
+from emirecords.api.app import AppBuilder
+from emirecords.cli import CliBuilder
+from emirecords.config.builder import ConfigBuilder
+from emirecords.config.errors import ConfigError
+from emirecords.console import FallbackConsoleBuilder
+from emirecords.server import Server
 
 cli = CliBuilder().build()
 

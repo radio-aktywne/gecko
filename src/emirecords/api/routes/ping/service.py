@@ -1,4 +1,4 @@
-from emirecorder.api.routes.ping.models import PingResponse
+from emirecords.api.routes.ping.models import PingResponse
 
 
 class Service:

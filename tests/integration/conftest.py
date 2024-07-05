@@ -6,9 +6,9 @@ from httpx import AsyncClient, BasicAuth
 from litestar import Litestar
 from litestar.testing import AsyncTestClient
 
-from emirecorder.api.app import AppBuilder
-from emirecorder.config.builder import ConfigBuilder
-from emirecorder.config.models import Config
+from emirecords.api.app import AppBuilder
+from emirecords.config.builder import ConfigBuilder
+from emirecords.config.models import Config
 from tests.utils.containers import AsyncDockerContainer
 from tests.utils.waiting.conditions import CallableCondition, CommandCondition
 from tests.utils.waiting.strategies import TimeoutStrategy
@@ -30,11 +30,11 @@ def app(config: Config) -> Litestar:
 
 
 @pytest_asyncio.fixture(scope="session")
-async def emishows_database() -> AsyncGenerator[AsyncDockerContainer, None]:
-    """Emishows database container."""
+async def datashows() -> AsyncGenerator[AsyncDockerContainer, None]:
+    """Datashows container."""
 
     container = AsyncDockerContainer(
-        "ghcr.io/radio-aktywne/databases/emishows-db:latest",
+        "ghcr.io/radio-aktywne/databases/datashows:latest",
         network="host",
         privileged=True,
     )
@@ -57,17 +57,17 @@ async def emishows_database() -> AsyncGenerator[AsyncDockerContainer, None]:
 
 
 @pytest_asyncio.fixture(scope="session")
-async def emitimes() -> AsyncGenerator[AsyncDockerContainer, None]:
-    """Emitimes container."""
+async def datatimes() -> AsyncGenerator[AsyncDockerContainer, None]:
+    """Datatimes container."""
 
     async def _check() -> None:
         auth = BasicAuth(username="user", password="password")
         async with AsyncClient(base_url="http://localhost:36000", auth=auth) as client:
-            response = await client.get("/user/emitimes")
+            response = await client.get("/user/datatimes")
             response.raise_for_status()
 
     container = AsyncDockerContainer(
-        "ghcr.io/radio-aktywne/databases/emitimes:latest",
+        "ghcr.io/radio-aktywne/databases/datatimes:latest",
         network="host",
     )
 
@@ -83,7 +83,7 @@ async def emitimes() -> AsyncGenerator[AsyncDockerContainer, None]:
 
 @pytest_asyncio.fixture(scope="session")
 async def emishows(
-    emishows_database: AsyncDockerContainer, emitimes: AsyncDockerContainer
+    datashows: AsyncDockerContainer, datatimes: AsyncDockerContainer
 ) -> AsyncGenerator[AsyncDockerContainer, None]:
     """Emishows container."""
 
@@ -108,8 +108,8 @@ async def emishows(
 
 
 @pytest_asyncio.fixture(scope="session")
-async def emiarchive() -> AsyncGenerator[AsyncDockerContainer, None]:
-    """Emiarchive container."""
+async def datarecords() -> AsyncGenerator[AsyncDockerContainer, None]:
+    """Datarecords container."""
 
     async def _check() -> None:
         async with AsyncClient(base_url="http://localhost:30000") as client:
@@ -117,7 +117,7 @@ async def emiarchive() -> AsyncGenerator[AsyncDockerContainer, None]:
             response.raise_for_status()
 
     container = AsyncDockerContainer(
-        "ghcr.io/radio-aktywne/databases/emiarchive:latest",
+        "ghcr.io/radio-aktywne/databases/datarecords:latest",
         network="host",
     )
 
@@ -143,7 +143,7 @@ async def emishows_client(
 
 @pytest_asyncio.fixture(scope="session")
 async def client(
-    app: Litestar, emishows: AsyncDockerContainer, emiarchive: AsyncDockerContainer
+    app: Litestar, emishows: AsyncDockerContainer, datarecords: AsyncDockerContainer
 ) -> AsyncGenerator[AsyncTestClient, None]:
     """Reusable test client."""
 

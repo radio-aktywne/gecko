@@ -9,16 +9,16 @@ from pystores.base import Store
 from pystreams.stream import Stream
 from zoneinfo import ZoneInfo
 
-from emirecorder.config.models import Config
-from emirecorder.emishows.models import Event, EventInstance, EventSchedule
-from emirecorder.emishows.service import EmishowsService
-from emirecorder.recording.errors import (
+from emirecords.config.models import Config
+from emirecords.emishows.models import Event, EventInstance, EventSchedule
+from emirecords.emishows.service import EmishowsService
+from emirecords.recording.errors import (
     InstanceNotFoundError,
     NoPortsAvailableError,
 )
-from emirecorder.recording.models import Credentials, Format, Request, Response
-from emirecorder.recording.runner import StreamRunner
-from emirecorder.time import naiveutcnow
+from emirecords.recording.models import Credentials, Format, Request, Response
+from emirecords.recording.runner import StreamRunner
+from emirecords.time import naiveutcnow
 
 
 class Recorder:

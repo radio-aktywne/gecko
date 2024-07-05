@@ -1,7 +1,7 @@
-from emirecorder.api.routes.record import errors as e
-from emirecorder.api.routes.record.models import RecordRequest, RecordResponse
-from emirecorder.recording import errors as re
-from emirecorder.recording.recorder import Recorder
+from emirecords.api.routes.record import errors as e
+from emirecords.api.routes.record.models import RecordRequest, RecordResponse
+from emirecords.recording import errors as re
+from emirecords.recording.recorder import Recorder
 
 
 class Service:

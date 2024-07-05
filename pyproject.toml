@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "emirecorder"
+name = "emirecords"
 version = "0.13.0"
 description = "Emission recording 🎥"
 authors = ["radio-aktywne <it@radioaktywne.pl>"]
@@ -39,7 +39,7 @@ httpx = "^0.27"
 
 [tool.poetry.scripts]
 # Register CLI
-emirecorder = "emirecorder.__main__:cli"
+emirecords = "emirecords.__main__:cli"
 
 # See: https://python-poetry.org/docs/pyproject/#poetry-and-pep-517
 [build-system]

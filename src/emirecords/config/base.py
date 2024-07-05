@@ -5,7 +5,7 @@ class BaseConfig(BaseSettings):
     """Base configuration class."""
 
     model_config = SettingsConfigDict(
-        env_prefix="EMIRECORDER__",
+        env_prefix="EMIRECORDS__",
         env_file=".env",
         env_nested_delimiter="__",
         extra="ignore",

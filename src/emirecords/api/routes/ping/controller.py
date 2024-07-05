@@ -5,8 +5,8 @@ from litestar.di import Provide
 from litestar.response import Response
 from litestar.status_codes import HTTP_204_NO_CONTENT
 
-from emirecorder.api.routes.ping.models import PingResponse
-from emirecorder.api.routes.ping.service import Service
+from emirecords.api.routes.ping.models import PingResponse
+from emirecords.api.routes.ping.service import Service
 
 
 class DependenciesBuilder:

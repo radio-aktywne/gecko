@@ -5,8 +5,8 @@ from omegaconf import OmegaConf
 from pydantic import ValidationError
 from yaml import YAMLError
 
-from emirecorder.config.errors import ConfigParseError
-from emirecorder.config.models import Config
+from emirecords.config.errors import ConfigParseError
+from emirecords.config.models import Config
 
 
 class ConfigBuilder:

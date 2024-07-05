@@ -10,11 +10,11 @@ from litestar.plugins import PluginProtocol
 from pylocks.asyncio import AsyncioLock
 from pystores.memory import MemoryStore
 
-from emirecorder.api.routes.router import router
-from emirecorder.config.models import Config
-from emirecorder.emishows.service import EmishowsService
-from emirecorder.recording.recorder import Recorder
-from emirecorder.state import State
+from emirecords.api.routes.router import router
+from emirecords.config.models import Config
+from emirecords.emishows.service import EmishowsService
+from emirecords.recording.recorder import Recorder
+from emirecords.state import State
 
 
 class AppBuilder:
@@ -32,8 +32,8 @@ class AppBuilder:
 
     def _build_openapi_config(self) -> OpenAPIConfig:
         return OpenAPIConfig(
-            title="emirecorder app",
-            version=metadata.version("emirecorder"),
+            title="emirecords app",
+            version=metadata.version("emirecords"),
             description="Emission recording 🎥",
         )
 

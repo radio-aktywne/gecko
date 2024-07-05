@@ -213,7 +213,7 @@ tasks:
         poetry
         run
         --
-        emirecorder
+        emirecords
         {{ .CLI_ARGS }}
   docker:
     desc: Run in docker container

@@ -3,8 +3,8 @@ from typing import TypeVar
 from gracy import BaseEndpoint, GracefulRetry, Gracy, GracyConfig, GracyNamespace
 from pydantic import TypeAdapter
 
-from emirecorder.config.models import EmishowsConfig
-from emirecorder.emishows.models import (
+from emirecords.config.models import EmishowsConfig
+from emirecords.emishows.models import (
     ScheduleListEndParameter,
     ScheduleListIncludeParameter,
     ScheduleListLimitParameter,
