@@ -30,7 +30,7 @@ def app(config: Config) -> Litestar:
 
 
 @pytest_asyncio.fixture(scope="session")
-async def datashows() -> AsyncGenerator[AsyncDockerContainer, None]:
+async def datashows() -> AsyncGenerator[AsyncDockerContainer]:
     """Datashows container."""
 
     container = AsyncDockerContainer(
@@ -57,7 +57,7 @@ async def datashows() -> AsyncGenerator[AsyncDockerContainer, None]:
 
 
 @pytest_asyncio.fixture(scope="session")
-async def datatimes() -> AsyncGenerator[AsyncDockerContainer, None]:
+async def datatimes() -> AsyncGenerator[AsyncDockerContainer]:
     """Datatimes container."""
 
     async def _check() -> None:
@@ -84,7 +84,7 @@ async def datatimes() -> AsyncGenerator[AsyncDockerContainer, None]:
 @pytest_asyncio.fixture(scope="session")
 async def emishows(
     datashows: AsyncDockerContainer, datatimes: AsyncDockerContainer
-) -> AsyncGenerator[AsyncDockerContainer, None]:
+) -> AsyncGenerator[AsyncDockerContainer]:
     """Emishows container."""
 
     async def _check() -> None:
@@ -108,7 +108,7 @@ async def emishows(
 
 
 @pytest_asyncio.fixture(scope="session")
-async def datarecords() -> AsyncGenerator[AsyncDockerContainer, None]:
+async def datarecords() -> AsyncGenerator[AsyncDockerContainer]:
     """Datarecords container."""
 
     async def _check() -> None:
@@ -134,7 +134,7 @@ async def datarecords() -> AsyncGenerator[AsyncDockerContainer, None]:
 @pytest_asyncio.fixture(scope="session")
 async def emishows_client(
     emishows: AsyncDockerContainer,
-) -> AsyncGenerator[AsyncClient, None]:
+) -> AsyncGenerator[AsyncClient]:
     """Emishows client."""
 
     async with AsyncClient(base_url="http://localhost:35000") as client:
@@ -144,7 +144,7 @@ async def emishows_client(
 @pytest_asyncio.fixture(scope="session")
 async def client(
     app: Litestar, emishows: AsyncDockerContainer, datarecords: AsyncDockerContainer
-) -> AsyncGenerator[AsyncTestClient, None]:
+) -> AsyncGenerator[AsyncTestClient]:
     """Reusable test client."""
 
     async with AsyncTestClient(app=app) as client:

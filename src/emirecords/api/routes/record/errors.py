@@ -1,24 +1,22 @@
 class ServiceError(Exception):
     """Base class for service errors."""
 
-    def __init__(self, message: str | None = None) -> None:
-        self._message = message
-
-        args = (message,) if message else ()
-        super().__init__(*args)
-
-    @property
-    def message(self) -> str | None:
-        return self._message
+    pass
 
 
-class InstanceNotFoundError(ServiceError):
-    """Raised when an event instance is not found."""
+class ValidationError(ServiceError):
+    """Raised when a validation error occurs."""
 
     pass
 
 
-class RecorderBusyError(ServiceError):
-    """Raised when the recorder is busy."""
+class ServiceBusyError(ServiceError):
+    """Raised when the service is busy."""
+
+    pass
+
+
+class EmishowsError(ServiceError):
+    """Raised when an emishows service operation fails."""
 
     pass

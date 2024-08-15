@@ -1,5 +1,5 @@
 ---
-slug: /configuration
+slug: /config
 title: Configuration
 ---
 
@@ -16,6 +16,9 @@ You can configure the app at runtime using various environment variables:
 - `EMIRECORDS__SERVER__PORTS__SRT` -
   ports to select from when listening for SRT streams
   (default: `31000`)
+- `EMIRECORDS__SERVER__TRUSTED` -
+  trusted IP addresses
+  (default: `*`)
 - `EMIRECORDS__RECORDER__TIMEOUT` -
   time after which a stream will be stopped if no connections are made
   (default: `PT1M`)
@@ -52,3 +55,6 @@ You can configure the app at runtime using various environment variables:
 - `EMIRECORDS__EMISHOWS__HTTP__PATH` -
   path of the HTTP API of the emishows service
   (default: ``)
+- `EMIRECORDS__DEBUG` -
+  enable debug mode
+  (default: `false`)

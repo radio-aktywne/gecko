@@ -7,20 +7,18 @@ from pystreams.srt import SRTNode
 from pystreams.stream import Stream
 
 from emirecords.config.models import Config
-from emirecords.emishows.models import Event, EventInstance
-from emirecords.recording.models import Credentials, Format
-from emirecords.time import naiveutcnow, stringify
+from emirecords.services.emishows import models as em
+from emirecords.services.recording import models as m
+from emirecords.utils.time import naiveutcnow, stringify
 
 
-class StreamRunner:
+class Runner:
     """Utility class for building and running a stream."""
 
     def __init__(self, config: Config) -> None:
         self._config = config
 
-    def _build_ffmpeg_input(self, credentials: Credentials, port: int) -> FFmpegNode:
-        """Builds an FFmpeg input node."""
-
+    def _build_ffmpeg_input(self, credentials: m.Credentials, port: int) -> FFmpegNode:
         timeout = credentials.expires_at - naiveutcnow()
         timeout = ceil(timeout.total_seconds() * 1000000)
         timeout = max(timeout, 0)
@@ -35,51 +33,44 @@ class StreamRunner:
             },
         )
 
-    def _build_ffmpeg_output(self, format: Format) -> FFmpegNode:
-        """Builds an FFmpeg output node."""
-
+    def _build_ffmpeg_output(self, format: m.Format) -> FFmpegNode:
         return FFmpegNode(
             target="pipe:",
-            options={"acodec": "copy", "f": format},
+            options={
+                "acodec": "copy",
+                "f": format,
+            },
         )
 
     def _build_ffmpeg_metadata(
         self,
-        credentials: Credentials,
+        credentials: m.Credentials,
         port: int,
-        format: Format,
+        format: m.Format,
     ) -> FFmpegStreamMetadata:
-        """Builds FFmpeg stream metadata."""
-
         return FFmpegStreamMetadata(
             input=self._build_ffmpeg_input(credentials, port),
             output=self._build_ffmpeg_output(format),
         )
 
     def _build_s3_endpoint(self) -> str:
-        """Builds an S3 endpoint URL."""
-
         return self._config.datarecords.s3.url
 
     def _build_s3_path(
         self,
-        event: Event,
-        instance: EventInstance,
-        format: Format,
+        event: em.Event,
+        instance: em.EventInstance,
+        format: m.Format,
     ) -> str:
-        """Builds an S3 path for the target file."""
-
         filename = f"{stringify(instance.start)}.{format}"
         return f"{event.id}/{filename}"
 
     def _build_s3_metadata(
         self,
-        event: Event,
-        instance: EventInstance,
-        format: Format,
+        event: em.Event,
+        instance: em.EventInstance,
+        format: m.Format,
     ) -> S3StreamMetadata:
-        """Builds S3 stream metadata."""
-
         return S3StreamMetadata(
             endpoint=self._build_s3_endpoint(),
             user=self._config.datarecords.s3.user,
@@ -90,14 +81,12 @@ class StreamRunner:
 
     def _build_stream_metadata(
         self,
-        event: Event,
-        instance: EventInstance,
-        credentials: Credentials,
+        event: em.Event,
+        instance: em.EventInstance,
+        credentials: m.Credentials,
         port: int,
-        format: Format,
+        format: m.Format,
     ) -> PipedStreamMetadata:
-        """Builds stream metadata."""
-
         return PipedStreamMetadata(
             streams=[
                 self._build_ffmpeg_metadata(credentials, port, format),
@@ -106,17 +95,15 @@ class StreamRunner:
         )
 
     async def _run_stream(self, metadata: PipedStreamMetadata) -> Stream:
-        """Run the stream with the given metadata."""
-
         return await PipedStreamFactory().create(metadata)
 
     async def run(
         self,
-        event: Event,
-        instance: EventInstance,
-        credentials: Credentials,
+        event: em.Event,
+        instance: em.EventInstance,
+        credentials: m.Credentials,
         port: int,
-        format: Format,
+        format: m.Format,
     ) -> Stream:
         """Run the stream."""
 
