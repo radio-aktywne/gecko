@@ -36,7 +36,7 @@
         ...
       }: let
         node = pkgs.nodejs;
-        python = pkgs.python311;
+        python = pkgs.python312;
         nil = pkgs.nil;
         task = pkgs.go-task;
         coreutils = pkgs.coreutils;
@@ -86,6 +86,8 @@
               usql
             ];
 
+            EXTRAPYTHONPATH = "${python}/${python.sitePackages}";
+
             shellHook = ''
               export TMPDIR=/tmp
             '';
@@ -119,6 +121,8 @@
               tini
               su-exec
             ];
+
+            EXTRAPYTHONPATH = "${python}/${python.sitePackages}";
 
             shellHook = ''
               export TMPDIR=/tmp
@@ -167,6 +171,8 @@
               s5cmd
               usql
             ];
+
+            EXTRAPYTHONPATH = "${python}/${python.sitePackages}";
 
             shellHook = ''
               export TMPDIR=/tmp

@@ -1,7 +1,7 @@
 import logging
+from collections.abc import AsyncGenerator, Callable
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from importlib import metadata
-from typing import AsyncGenerator, Callable
 
 from litestar import Litestar, Router
 from litestar.contrib.pydantic import PydanticPlugin
@@ -12,8 +12,8 @@ from pystores.memory import MemoryStore
 
 from emirecords.api.routes.router import router
 from emirecords.config.models import Config
-from emirecords.emishows.service import EmishowsService
-from emirecords.recording.recorder import Recorder
+from emirecords.services.emishows.service import EmishowsService
+from emirecords.services.recording.service import RecordingService
 from emirecords.state import State
 
 
@@ -30,50 +30,13 @@ class AppBuilder:
     def _get_route_handlers(self) -> list[Router]:
         return [router]
 
-    def _build_openapi_config(self) -> OpenAPIConfig:
-        return OpenAPIConfig(
-            title="emirecords app",
-            version=metadata.version("emirecords"),
-            description="Emission recording 🎥",
-        )
-
-    def _build_pydantic_plugin(self) -> PydanticPlugin:
-        return PydanticPlugin(
-            prefer_alias=True,
-        )
-
-    def _build_plugins(self) -> list[PluginProtocol]:
-        return [
-            self._build_pydantic_plugin(),
-        ]
-
-    def _build_emishows(self) -> EmishowsService:
-        return EmishowsService(config=self._config.emishows)
-
-    def _build_recorder(self, emishows: EmishowsService) -> Recorder:
-        return Recorder(
-            config=self._config,
-            store=MemoryStore[set[int]](set()),
-            lock=AsyncioLock(),
-            emishows=emishows,
-        )
-
-    def _build_initial_state(self) -> State:
-        emishows = self._build_emishows()
-        recorder = self._build_recorder(emishows)
-
-        return State(
-            {
-                "config": self._config,
-                "emishows": emishows,
-                "recorder": recorder,
-            }
-        )
+    def _get_debug(self) -> bool:
+        return self._config.debug
 
     @asynccontextmanager
     async def _suppress_httpx_logging_lifespan(
         self, app: Litestar
-    ) -> AsyncGenerator[None, None]:
+    ) -> AsyncGenerator[None]:
         logger = logging.getLogger("httpx")
         disabled = logger.disabled
         logger.disabled = True
@@ -90,11 +53,65 @@ class AppBuilder:
             self._suppress_httpx_logging_lifespan,
         ]
 
+    def _build_openapi_config(self) -> OpenAPIConfig:
+        return OpenAPIConfig(
+            # Title of the app
+            title="emirecords app",
+            # Version of the app
+            version=metadata.version("emirecords"),
+            # Description of the app
+            summary="Emission recording 🎥",
+            # Use handler docstrings as operation descriptions
+            use_handler_docstrings=True,
+            # Endpoint to serve the OpenAPI docs from
+            path="/schema",
+        )
+
+    def _build_pydantic_plugin(self) -> PydanticPlugin:
+        return PydanticPlugin(
+            # Use aliases for serialization
+            prefer_alias=True,
+            # Allow type coercion
+            validate_strict=False,
+        )
+
+    def _build_plugins(self) -> list[PluginProtocol]:
+        return [
+            self._build_pydantic_plugin(),
+        ]
+
+    def _build_emishows(self) -> EmishowsService:
+        return EmishowsService(
+            config=self._config.emishows,
+        )
+
+    def _build_recording(self, emishows: EmishowsService) -> RecordingService:
+        return RecordingService(
+            config=self._config,
+            store=MemoryStore[set[int]](set()),
+            lock=AsyncioLock(),
+            emishows=emishows,
+        )
+
+    def _build_initial_state(self) -> State:
+        config = self._config
+        emishows = self._build_emishows()
+        recording = self._build_recording(emishows)
+
+        return State(
+            {
+                "config": config,
+                "emishows": emishows,
+                "recording": recording,
+            }
+        )
+
     def build(self) -> Litestar:
         return Litestar(
             route_handlers=self._get_route_handlers(),
+            debug=self._get_debug(),
+            lifespan=self._build_lifespan(),
             openapi_config=self._build_openapi_config(),
             plugins=self._build_plugins(),
             state=self._build_initial_state(),
-            lifespan=self._build_lifespan(),
         )
