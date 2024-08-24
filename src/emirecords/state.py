@@ -2,7 +2,7 @@ from litestar.datastructures import State as LitestarState
 
 from emirecords.config.models import Config
 from emirecords.services.emishows.service import EmishowsService
-from emirecords.services.recording.service import RecordingService
+from emirecords.services.mediarecords.service import MediarecordsService
 
 
 class State(LitestarState):
@@ -14,5 +14,5 @@ class State(LitestarState):
     emishows: EmishowsService
     """Service for emishows API."""
 
-    recording: RecordingService
-    """Service to manage recording."""
+    mediarecords: MediarecordsService
+    """Service for mediarecords database."""

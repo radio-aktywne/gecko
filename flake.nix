@@ -44,7 +44,7 @@
         poetry = pkgs.poetry;
         cacert = pkgs.cacert;
         copier = pkgs.copier;
-        ffmpeg = pkgs.ffmpeg;
+        mc = pkgs.minio-client;
         s5cmd = pkgs.s5cmd;
         usql = pkgs.usql;
         tini = pkgs.tini;
@@ -81,7 +81,7 @@
               poetry
               cacert
               copier
-              ffmpeg
+              mc
               s5cmd
               usql
             ];
@@ -116,8 +116,6 @@
               python
               poetry
               cacert
-              ffmpeg
-              s5cmd
               tini
               su-exec
             ];
@@ -167,8 +165,6 @@
               coreutils
               poetry
               cacert
-              ffmpeg
-              s5cmd
               usql
             ];
 

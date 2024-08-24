@@ -3,7 +3,7 @@ _commit: 0.16.0
 _src_path: gh:radio-aktywne/template-app-litestar
 accountname: radio-aktywne
 appname: emirecords
-description: Emission recording 🎥
+description: Emission recordings 📼
 docs: true
 docsurl: https://radio-aktywne.github.io/app-emirecords
 email: it@radioaktywne.pl
