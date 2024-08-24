@@ -22,6 +22,6 @@ class Server:
         uvicorn.run(
             self._app,
             host=self._config.host,
-            port=self._config.ports.http,
+            port=self._config.port,
             forwarded_allow_ips=self._config.trusted,
         )

@@ -429,52 +429,77 @@ class ScheduleList(SerializableModel):
     """Schedules that matched the request."""
 
 
-ListRequestStart = NaiveDatetime | None
+EventsGetRequestId = UUID
 
-ListRequestEnd = NaiveDatetime | None
+EventsGetRequestInclude = EventInclude | None
 
-ListRequestLimit = int | None
+EventsGetResponseEvent = Event
 
-ListRequestOffset = int | None
+ScheduleListRequestStart = NaiveDatetime | None
 
-ListRequestWhere = EventWhereInput | None
+ScheduleListRequestEnd = NaiveDatetime | None
 
-ListRequestInclude = EventInclude | None
+ScheduleListRequestLimit = int | None
 
-ListRequestOrder = EventOrderByInput | list[EventOrderByInput] | None
+ScheduleListRequestOffset = int | None
 
-ListResponseResults = ScheduleList
+ScheduleListRequestWhere = EventWhereInput | None
+
+ScheduleListRequestInclude = EventInclude | None
+
+ScheduleListRequestOrder = EventOrderByInput | list[EventOrderByInput] | None
+
+ScheduleListResponseResults = ScheduleList
 
 
 @datamodel
-class ListRequest:
-    """Request to list schedules."""
+class EventsGetRequest:
+    """Request to get an event."""
 
-    start: ListRequestStart
-    """Start time in UTC to filter events instances."""
+    id: EventsGetRequestId
+    """Identifier of the event."""
 
-    end: ListRequestEnd
-    """End time in UTC to filter events instances."""
-
-    limit: ListRequestLimit
-    """Maximum number of schedules to return."""
-
-    offset: ListRequestOffset
-    """Number of schedules to skip."""
-
-    where: ListRequestWhere
-    """Filter to apply to find events."""
-
-    include: ListRequestInclude
+    include: EventsGetRequestInclude
     """Relations to include in the response."""
 
-    order: ListRequestOrder
+
+@datamodel
+class EventsGetResponse:
+    """Response for getting an event."""
+
+    event: EventsGetResponseEvent
+    """Event data."""
+
+
+@datamodel
+class ScheduleListRequest:
+    """Request to list schedules."""
+
+    start: ScheduleListRequestStart
+    """Start time in UTC to filter events instances."""
+
+    end: ScheduleListRequestEnd
+    """End time in UTC to filter events instances."""
+
+    limit: ScheduleListRequestLimit
+    """Maximum number of schedules to return."""
+
+    offset: ScheduleListRequestOffset
+    """Number of schedules to skip."""
+
+    where: ScheduleListRequestWhere
+    """Filter to apply to find events."""
+
+    include: ScheduleListRequestInclude
+    """Relations to include in the response."""
+
+    order: ScheduleListRequestOrder
     """Order to apply to the results."""
 
 
 @datamodel
-class ListResponse:
+class ScheduleListResponse:
     """Response for listing schedules."""
 
-    results: ListResponseResults
+    results: ScheduleListResponseResults
     """List of schedules."""

@@ -5,6 +5,7 @@ import pytest_asyncio
 from httpx import AsyncClient, BasicAuth
 from litestar import Litestar
 from litestar.testing import AsyncTestClient
+from minio import Minio
 
 from emirecords.api.app import AppBuilder
 from emirecords.config.builder import ConfigBuilder
@@ -108,8 +109,8 @@ async def emishows(
 
 
 @pytest_asyncio.fixture(scope="session")
-async def datarecords() -> AsyncGenerator[AsyncDockerContainer]:
-    """Datarecords container."""
+async def mediarecords() -> AsyncGenerator[AsyncDockerContainer]:
+    """Mediarecords container."""
 
     async def _check() -> None:
         async with AsyncClient(base_url="http://localhost:30000") as client:
@@ -117,7 +118,7 @@ async def datarecords() -> AsyncGenerator[AsyncDockerContainer]:
             response.raise_for_status()
 
     container = AsyncDockerContainer(
-        "ghcr.io/radio-aktywne/databases/datarecords:latest",
+        "ghcr.io/radio-aktywne/databases/mediarecords:latest",
         network="host",
     )
 
@@ -141,9 +142,22 @@ async def emishows_client(
         yield client
 
 
+@pytest.fixture(scope="session")
+def mediarecords_client(mediarecords: AsyncDockerContainer) -> Minio:
+    """Mediarecords client."""
+
+    return Minio(
+        endpoint="localhost:30000",
+        access_key="readwrite",
+        secret_key="password",
+        secure=False,
+        cert_check=False,
+    )
+
+
 @pytest_asyncio.fixture(scope="session")
 async def client(
-    app: Litestar, emishows: AsyncDockerContainer, datarecords: AsyncDockerContainer
+    app: Litestar, emishows: AsyncDockerContainer, mediarecords: AsyncDockerContainer
 ) -> AsyncGenerator[AsyncTestClient]:
     """Reusable test client."""
 

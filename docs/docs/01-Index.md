@@ -5,7 +5,7 @@ title: Index
 
 # emirecords app
 
-Emission recording 🎥
+Emission recordings 📼
 
 ## 💡 About
 

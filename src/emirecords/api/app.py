@@ -1,4 +1,5 @@
 import logging
+import warnings
 from collections.abc import AsyncGenerator, Callable
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from importlib import metadata
@@ -7,13 +8,12 @@ from litestar import Litestar, Router
 from litestar.contrib.pydantic import PydanticPlugin
 from litestar.openapi import OpenAPIConfig
 from litestar.plugins import PluginProtocol
-from pylocks.asyncio import AsyncioLock
-from pystores.memory import MemoryStore
+from urllib3.exceptions import InsecureRequestWarning
 
 from emirecords.api.routes.router import router
 from emirecords.config.models import Config
 from emirecords.services.emishows.service import EmishowsService
-from emirecords.services.recording.service import RecordingService
+from emirecords.services.mediarecords.service import MediarecordsService
 from emirecords.state import State
 
 
@@ -34,6 +34,16 @@ class AppBuilder:
         return self._config.debug
 
     @asynccontextmanager
+    async def _suppress_urllib_warnings_lifespan(
+        self, app: Litestar
+    ) -> AsyncGenerator[None]:
+        with warnings.catch_warnings(
+            action="ignore",
+            category=InsecureRequestWarning,
+        ):
+            yield
+
+    @asynccontextmanager
     async def _suppress_httpx_logging_lifespan(
         self, app: Litestar
     ) -> AsyncGenerator[None]:
@@ -50,6 +60,7 @@ class AppBuilder:
         self,
     ) -> list[Callable[[Litestar], AbstractAsyncContextManager]]:
         return [
+            self._suppress_urllib_warnings_lifespan,
             self._suppress_httpx_logging_lifespan,
         ]
 
@@ -60,7 +71,7 @@ class AppBuilder:
             # Version of the app
             version=metadata.version("emirecords"),
             # Description of the app
-            summary="Emission recording 🎥",
+            summary="Emission recordings 📼",
             # Use handler docstrings as operation descriptions
             use_handler_docstrings=True,
             # Endpoint to serve the OpenAPI docs from
@@ -85,24 +96,21 @@ class AppBuilder:
             config=self._config.emishows,
         )
 
-    def _build_recording(self, emishows: EmishowsService) -> RecordingService:
-        return RecordingService(
-            config=self._config,
-            store=MemoryStore[set[int]](set()),
-            lock=AsyncioLock(),
-            emishows=emishows,
+    def _build_mediarecords(self) -> MediarecordsService:
+        return MediarecordsService(
+            config=self._config.mediarecords,
         )
 
     def _build_initial_state(self) -> State:
         config = self._config
         emishows = self._build_emishows()
-        recording = self._build_recording(emishows)
+        mediarecords = self._build_mediarecords()
 
         return State(
             {
                 "config": config,
                 "emishows": emishows,
-                "recording": recording,
+                "mediarecords": mediarecords,
             }
         )
 

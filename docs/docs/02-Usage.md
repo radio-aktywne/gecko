@@ -3,66 +3,54 @@ slug: /usage
 title: Usage
 ---
 
-## Requesting a recording
+## Listing records
 
-You can request a recording by sending a `POST` request to the `/record` endpoint.
-The request body should contain the information
-about the event associated with the stream.
-See the API documentation for more details.
-
-For example, you can use [`curl`](https://curl.se) to do that:
+You can list records using the `/records/:event` endpoint.
+For example, you can use `curl` to list all records for an event:
 
 ```sh
 curl \
-    --request POST \
-    --header "Content-Type: application/json" \
-    --data '{"event": "747c31a8-74d2-497f-ba89-cdd85b243e5d"}' \
-    http://localhost:31000/record
+    --request GET \
+    http://localhost:31000/records/0f339cb0-7ab4-43fe-852d-75708232f76c
 ```
 
-You should receive a response containing the credentials and port number
-that you can use to connect to the stream and start sending audio.
-The credentials are only valid for a limited time.
+## Uploading and downloading records
 
-## Sending audio
-
-You can send audio to record using the
-[`SRT`](https://www.haivision.com/products/srt-secure-reliable-transport)
-protocol.
-
-As the audio codec and container,
-by default you should use [`Opus`](https://opus-codec.org) and
-[`Ogg`](https://www.xiph.org/ogg) respectively.
-They are free and open source, focused on quality and efficiency,
-and support embedding metadata into the stream.
-
-Remember to use the token and port you received in the previous step
-to connect to the stream.
-
-For example, you can use [`Liquidsoap`](https://www.liquidsoap.info) for that:
+You can upload and download records
+using the `/records/:event/:start` endpoint.
+To upload a record, you can use
+[`curl`](https://curl.se) to send a `PUT` request
+streaming the content from a file:
 
 ```sh
-liquidsoap \
-    'output.srt(
-        host="127.0.0.1",
-        port=31000,
-        passphrase="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-        %ogg(%opus),
-        sine()
-    )'
+curl \
+    --request PUT \
+    --header "Content-Type: audio/ogg" \
+    --header "Transfer-Encoding: chunked" \
+    --upload-file record.ogg \
+    http://localhost:31000/record/0f339cb0-7ab4-43fe-852d-75708232f76c/2024-01-01T00:00:00
 ```
 
-Alternatively, you can use [`ffmpeg`](https://ffmpeg.org) to do the same:
+To download a record, you can use
+[`curl`](https://curl.se) to send a `GET` request
+and save the response body to a file:
 
 ```sh
-ffmpeg \
-    -re \
-    -f lavfi \
-    -i sine \
-    -c libopus \
-    -f ogg \
-    -passphrase "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
-    srt://127.0.0.1:31000
+curl \
+    --request GET \
+    --output record.ogg \
+    http://localhost:31000/record/0f339cb0-7ab4-43fe-852d-75708232f76c/2024-01-01T00:00:00
+```
+
+## Deleting records
+
+You can delete records using the `/record/:event/:start` endpoint.
+For example, you can use `curl` to delete a record:
+
+```sh
+curl \
+    --request DELETE \
+    http://localhost:31000/record/0f339cb0-7ab4-43fe-852d-75708232f76c/2024-01-01T00:00:00
 ```
 
 ## Ping

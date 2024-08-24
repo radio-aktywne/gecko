@@ -2,7 +2,7 @@
 
 <div align="center">
 
-Emission recording 🎥
+Emission recordings 📼
 
 [![Lint](https://github.com/radio-aktywne/app-emirecords/actions/workflows/lint.yaml/badge.svg)](https://github.com/radio-aktywne/app-emirecords/actions/workflows/lint.yaml)
 [![Test](https://github.com/radio-aktywne/app-emirecords/actions/workflows/test.yaml/badge.svg)](https://github.com/radio-aktywne/app-emirecords/actions/workflows/test.yaml)
