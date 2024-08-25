@@ -10,7 +10,11 @@ from litestar.params import Parameter
 from litestar.response import Response, Stream
 from litestar.status_codes import HTTP_204_NO_CONTENT
 
-from emirecords.api.exceptions import ConflictException, NotFoundException
+from emirecords.api.exceptions import (
+    BadRequestException,
+    ConflictException,
+    NotFoundException,
+)
 from emirecords.api.routes.records import errors as e
 from emirecords.api.routes.records import models as m
 from emirecords.api.routes.records.service import Service
@@ -99,6 +103,8 @@ class Controller(BaseController):
 
         try:
             res = await service.list(req)
+        except e.BadEventTypeError as ex:
+            raise BadRequestException(extra=str(ex)) from ex
         except e.EventNotFoundError as ex:
             raise NotFoundException(extra=str(ex)) from ex
 
@@ -159,6 +165,8 @@ class Controller(BaseController):
 
         try:
             res = await service.download(req)
+        except e.BadEventTypeError as ex:
+            raise BadRequestException(extra=str(ex)) from ex
         except e.InstanceNotFoundError as ex:
             raise NotFoundException(extra=str(ex)) from ex
         except e.RecordNotFoundError as ex:
@@ -234,6 +242,8 @@ class Controller(BaseController):
 
         try:
             res = await service.headdownload(req)
+        except e.BadEventTypeError as ex:
+            raise BadRequestException(extra=str(ex)) from ex
         except e.InstanceNotFoundError as ex:
             raise NotFoundException(extra=str(ex)) from ex
         except e.RecordNotFoundError as ex:
@@ -310,6 +320,8 @@ class Controller(BaseController):
 
         try:
             await service.upload(req)
+        except e.BadEventTypeError as ex:
+            raise BadRequestException(extra=str(ex)) from ex
         except e.InstanceNotFoundError as ex:
             raise NotFoundException(extra=str(ex)) from ex
         except e.RecordAlreadyExistsError as ex:
@@ -348,6 +360,8 @@ class Controller(BaseController):
 
         try:
             await service.delete(req)
+        except e.BadEventTypeError as ex:
+            raise BadRequestException(extra=str(ex)) from ex
         except e.InstanceNotFoundError as ex:
             raise NotFoundException(extra=str(ex)) from ex
         except e.RecordNotFoundError as ex:
