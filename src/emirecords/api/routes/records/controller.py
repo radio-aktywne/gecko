@@ -10,11 +10,7 @@ from litestar.params import Parameter
 from litestar.response import Response, Stream
 from litestar.status_codes import HTTP_204_NO_CONTENT
 
-from emirecords.api.exceptions import (
-    BadRequestException,
-    ConflictException,
-    NotFoundException,
-)
+from emirecords.api.exceptions import BadRequestException, NotFoundException
 from emirecords.api.routes.records import errors as e
 from emirecords.api.routes.records import models as m
 from emirecords.api.routes.records.service import Service
@@ -269,9 +265,6 @@ class Controller(BaseController):
         "/{event:uuid}/{start:str}",
         summary="Upload record",
         status_code=HTTP_204_NO_CONTENT,
-        raises=[
-            ConflictException,
-        ],
     )
     async def upload(
         self,
@@ -324,8 +317,6 @@ class Controller(BaseController):
             raise BadRequestException(extra=str(ex)) from ex
         except e.InstanceNotFoundError as ex:
             raise NotFoundException(extra=str(ex)) from ex
-        except e.RecordAlreadyExistsError as ex:
-            raise ConflictException(extra=str(ex)) from ex
 
         return Response(None)
 

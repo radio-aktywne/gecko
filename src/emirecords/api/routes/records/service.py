@@ -26,8 +26,6 @@ class Service:
             raise e.InstanceNotFoundError(str(ex)) from ex
         except re.RecordNotFoundError as ex:
             raise e.RecordNotFoundError(str(ex)) from ex
-        except re.RecordAlreadyExistsError as ex:
-            raise e.RecordAlreadyExistsError(str(ex)) from ex
         except re.EmishowsError as ex:
             raise e.EmishowsError(str(ex)) from ex
         except re.MediarecordsError as ex:

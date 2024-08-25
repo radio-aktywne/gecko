@@ -245,18 +245,6 @@ class RecordsService:
 
         key = self._make_key(event, start)
 
-        req = mm.GetRequest(
-            name=key,
-        )
-
-        with self._handle_errors():
-            try:
-                await self._mediarecords.get(req)
-            except me.NotFoundError:
-                pass
-            else:
-                raise e.RecordAlreadyExistsError(event, start)
-
         req = mm.UploadRequest(
             name=key,
             content=content,
