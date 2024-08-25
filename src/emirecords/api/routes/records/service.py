@@ -1,7 +1,5 @@
 from collections.abc import Generator
 from contextlib import contextmanager
-from datetime import datetime
-from uuid import UUID
 
 from emirecords.api.routes.records import errors as e
 from emirecords.api.routes.records import models as m
@@ -20,21 +18,22 @@ class Service:
     def _handle_errors(self) -> Generator[None]:
         try:
             yield
+        except re.EventNotFoundError as ex:
+            raise e.EventNotFoundError(str(ex)) from ex
+        except re.BadEventTypeError as ex:
+            raise e.BadEventTypeError(str(ex)) from ex
+        except re.InstanceNotFoundError as ex:
+            raise e.InstanceNotFoundError(str(ex)) from ex
+        except re.RecordNotFoundError as ex:
+            raise e.RecordNotFoundError(str(ex)) from ex
+        except re.RecordAlreadyExistsError as ex:
+            raise e.RecordAlreadyExistsError(str(ex)) from ex
         except re.EmishowsError as ex:
             raise e.EmishowsError(str(ex)) from ex
         except re.MediarecordsError as ex:
             raise e.MediarecordsError(str(ex)) from ex
         except re.ServiceError as ex:
             raise e.ServiceError(str(ex)) from ex
-
-    @contextmanager
-    def _handle_not_found(self, event: UUID, start: datetime) -> Generator[None]:
-        try:
-            yield
-        except re.InstanceNotFoundError as ex:
-            raise e.InstanceNotFoundError(event, start) from ex
-        except re.RecordNotFoundError as ex:
-            raise e.RecordNotFoundError(event, start) from ex
 
     async def list(self, request: m.ListRequest) -> m.ListResponse:
         """List records."""
@@ -56,10 +55,7 @@ class Service:
         )
 
         with self._handle_errors():
-            try:
-                res = await self._records.list(req)
-            except re.EventNotFoundError as ex:
-                raise e.EventNotFoundError(event) from ex
+            res = await self._records.list(req)
 
         count = res.count
         records = res.records
@@ -87,8 +83,7 @@ class Service:
         )
 
         with self._handle_errors():
-            with self._handle_not_found(event, start):
-                res = await self._records.download(req)
+            res = await self._records.download(req)
 
         content = res.content
 
@@ -119,8 +114,7 @@ class Service:
         )
 
         with self._handle_errors():
-            with self._handle_not_found(event, start):
-                res = await self._records.download(req)
+            res = await self._records.download(req)
 
         content = res.content
 
@@ -154,11 +148,7 @@ class Service:
         )
 
         with self._handle_errors():
-            with self._handle_not_found(event, start):
-                try:
-                    await self._records.upload(req)
-                except re.RecordAlreadyExistsError as ex:
-                    raise e.RecordAlreadyExistsError(event, start) from ex
+            await self._records.upload(req)
 
         return m.UploadResponse()
 
@@ -174,7 +164,6 @@ class Service:
         )
 
         with self._handle_errors():
-            with self._handle_not_found(event, start):
-                await self._records.delete(req)
+            await self._records.delete(req)
 
         return m.DeleteResponse()

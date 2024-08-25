@@ -53,7 +53,12 @@ class RecordsService:
 
                 raise
 
-        return res.event
+        ev = res.event
+
+        if ev.type != em.EventType.live:
+            raise e.BadEventTypeError(ev.type)
+
+        return ev
 
     async def _get_instance(
         self, event: UUID, start: datetime
@@ -80,6 +85,9 @@ class RecordsService:
 
         if schedule is None:
             return None
+
+        if schedule.event.type != em.EventType.live:
+            raise e.BadEventTypeError(schedule.event.type)
 
         return next(
             (instance for instance in schedule.instances if instance.start == start),
