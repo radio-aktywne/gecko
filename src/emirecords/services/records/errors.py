@@ -40,15 +40,6 @@ class RecordNotFoundError(ServiceError):
         )
 
 
-class RecordAlreadyExistsError(ServiceError):
-    """Raised when record already exists."""
-
-    def __init__(self, event: UUID, start: datetime) -> None:
-        super().__init__(
-            f"Record already exists for instance of live event {event} starting at {start}."
-        )
-
-
 class EmishowsError(ServiceError):
     """Raised when an emishows service operation fails."""
 

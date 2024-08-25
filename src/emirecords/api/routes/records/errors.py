@@ -28,12 +28,6 @@ class RecordNotFoundError(ServiceError):
     pass
 
 
-class RecordAlreadyExistsError(ServiceError):
-    """Raised when record already exists."""
-
-    pass
-
-
 class EmishowsError(ServiceError):
     """Raised when an emishows service error occurs."""
 
