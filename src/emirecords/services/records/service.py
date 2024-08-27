@@ -1,8 +1,10 @@
 from collections.abc import Generator
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
 from uuid import UUID
+
+from zoneinfo import ZoneInfo
 
 from emirecords.services.emishows import errors as ee
 from emirecords.services.emishows import models as em
@@ -63,13 +65,23 @@ class RecordsService:
     async def _get_instance(
         self, event: UUID, start: datetime
     ) -> em.EventInstance | None:
+        mevent = await self._get_event(event)
+
+        if mevent is None:
+            return None
+
+        tz = ZoneInfo(mevent.timezone)
+        utcstart = start.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=tz)
+        utcstart = utcstart.astimezone(UTC).replace(tzinfo=None)
+        utcend = utcstart + timedelta(days=1)
+
         req = em.ScheduleListRequest(
-            start=start,
-            end=start,
+            start=utcstart,
+            end=utcend,
             limit=None,
             offset=None,
             where={
-                "id": str(event),
+                "id": str(mevent.id),
             },
             include=None,
             order=None,
@@ -78,8 +90,7 @@ class RecordsService:
         with self._handle_errors():
             res = await self._emishows.schedule.list(req)
 
-        results = res.results
-        schedules = results.schedules
+        schedules = res.results.schedules
 
         schedule = next(iter(schedules), None)
 
