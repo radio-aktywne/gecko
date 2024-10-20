@@ -1,14 +1,14 @@
-<h1 align="center">emirecords</h1>
+<h1 align="center">gecko</h1>
 
 <div align="center">
 
 Broadcast recordings 📼
 
-[![Lint](https://github.com/radio-aktywne/emirecords/actions/workflows/lint.yaml/badge.svg)](https://github.com/radio-aktywne/emirecords/actions/workflows/lint.yaml)
-[![Test](https://github.com/radio-aktywne/emirecords/actions/workflows/test.yaml/badge.svg)](https://github.com/radio-aktywne/emirecords/actions/workflows/test.yaml)
-[![Image](https://github.com/radio-aktywne/emirecords/actions/workflows/image.yaml/badge.svg)](https://github.com/radio-aktywne/emirecords/actions/workflows/image.yaml)
-[![Registry](https://github.com/radio-aktywne/emirecords/actions/workflows/registry.yaml/badge.svg)](https://github.com/radio-aktywne/emirecords/actions/workflows/registry.yaml)
-[![Docs](https://github.com/radio-aktywne/emirecords/actions/workflows/docs.yaml/badge.svg)](https://github.com/radio-aktywne/emirecords/actions/workflows/docs.yaml)
+[![Lint](https://github.com/radio-aktywne/gecko/actions/workflows/lint.yaml/badge.svg)](https://github.com/radio-aktywne/gecko/actions/workflows/lint.yaml)
+[![Test](https://github.com/radio-aktywne/gecko/actions/workflows/test.yaml/badge.svg)](https://github.com/radio-aktywne/gecko/actions/workflows/test.yaml)
+[![Image](https://github.com/radio-aktywne/gecko/actions/workflows/image.yaml/badge.svg)](https://github.com/radio-aktywne/gecko/actions/workflows/image.yaml)
+[![Registry](https://github.com/radio-aktywne/gecko/actions/workflows/registry.yaml/badge.svg)](https://github.com/radio-aktywne/gecko/actions/workflows/registry.yaml)
+[![Docs](https://github.com/radio-aktywne/gecko/actions/workflows/docs.yaml/badge.svg)](https://github.com/radio-aktywne/gecko/actions/workflows/docs.yaml)
 
 </div>
 
@@ -16,14 +16,14 @@ Broadcast recordings 📼
 
 ## 💡 About
 
-`emirecords` is a service for recording live broadcasts.
+`gecko` is a service for recording live broadcasts.
 
 ## 📄 Further Reading
 
 More in-depth documentation can be found
-[here](https://radio-aktywne.github.io/emirecords).
+[here](https://radio-aktywne.github.io/gecko).
 
 ## 💻 Development
 
 Read more about how to develop the project
-[here](https://github.com/radio-aktywne/emirecords/blob/main/CONTRIBUTING.md).
+[here](https://github.com/radio-aktywne/gecko/blob/main/CONTRIBUTING.md).

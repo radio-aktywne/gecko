@@ -2,10 +2,10 @@ import type * as Preset from "@docusaurus/preset-classic";
 import type { Config } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
 
-const url = new URL("https://radio-aktywne.github.io/emirecords");
+const url = new URL("https://radio-aktywne.github.io/gecko");
 
 const config: Config = {
-  title: "emirecords docs",
+  title: "gecko docs",
   favicon: "favicon.svg?v=1",
 
   url: `${url.protocol}//${url.host}`,
@@ -41,14 +41,14 @@ const config: Config = {
 
   themeConfig: {
     navbar: {
-      title: "emirecords docs",
+      title: "gecko docs",
       logo: {
-        alt: "emirecords docs logo",
+        alt: "gecko docs logo",
         src: "logo.svg?v=1",
       },
       items: [
         {
-          href: "https://github.com/radio-aktywne/emirecords",
+          href: "https://github.com/radio-aktywne/gecko",
           position: "right",
           className: "header-github-link",
           "aria-label": "GitHub repository",

@@ -4,15 +4,15 @@ _src_path: gh:radio-aktywne/template-service-litestar
 accountname: radio-aktywne
 description: Broadcast recordings 📼
 docs: true
-docsurl: https://radio-aktywne.github.io/emirecords
+docsurl: https://radio-aktywne.github.io/gecko
 email: it@radioaktywne.pl
-envprefix: EMIRECORDS
+envprefix: GECKO
 events: false
-imagename: services/emirecords
-importname: emirecords
+imagename: services/gecko
+importname: gecko
 port: 31000
 registry: true
 releases: true
-reponame: emirecords
-repourl: https://github.com/radio-aktywne/emirecords
-servicename: emirecords
+reponame: gecko
+repourl: https://github.com/radio-aktywne/gecko
+servicename: gecko

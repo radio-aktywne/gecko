@@ -3,10 +3,10 @@ slug: /
 title: Index
 ---
 
-# emirecords
+# gecko
 
 Broadcast recordings 📼
 
 ## 💡 About
 
-`emirecords` is a service for recording live broadcasts.
+`gecko` is a service for recording live broadcasts.

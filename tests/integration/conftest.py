@@ -7,9 +7,9 @@ from litestar import Litestar
 from litestar.testing import AsyncTestClient
 from minio import Minio
 
-from emirecords.api.app import AppBuilder
-from emirecords.config.builder import ConfigBuilder
-from emirecords.config.models import Config
+from gecko.api.app import AppBuilder
+from gecko.config.builder import ConfigBuilder
+from gecko.config.models import Config
 from tests.utils.containers import AsyncDockerContainer
 from tests.utils.waiting.conditions import CallableCondition, CommandCondition
 from tests.utils.waiting.strategies import TimeoutStrategy
@@ -31,11 +31,36 @@ def app(config: Config) -> Litestar:
 
 
 @pytest_asyncio.fixture(scope="session")
-async def datashows() -> AsyncGenerator[AsyncDockerContainer]:
-    """Datashows container."""
+async def howlite() -> AsyncGenerator[AsyncDockerContainer]:
+    """Howlite container."""
+
+    async def _check() -> None:
+        auth = BasicAuth(username="user", password="password")
+        async with AsyncClient(base_url="http://localhost:36000", auth=auth) as client:
+            response = await client.get("/user/calendar")
+            response.raise_for_status()
 
     container = AsyncDockerContainer(
-        "ghcr.io/radio-aktywne/databases/datashows:latest",
+        "ghcr.io/radio-aktywne/databases/howlite:latest",
+        network="host",
+    )
+
+    waiter = Waiter(
+        condition=CallableCondition(_check),
+        strategy=TimeoutStrategy(30),
+    )
+
+    async with container as container:
+        await waiter.wait()
+        yield container
+
+
+@pytest_asyncio.fixture(scope="session")
+async def sapphire() -> AsyncGenerator[AsyncDockerContainer]:
+    """Sapphire container."""
+
+    container = AsyncDockerContainer(
+        "ghcr.io/radio-aktywne/databases/sapphire:latest",
         network="host",
         privileged=True,
     )
@@ -58,35 +83,10 @@ async def datashows() -> AsyncGenerator[AsyncDockerContainer]:
 
 
 @pytest_asyncio.fixture(scope="session")
-async def datatimes() -> AsyncGenerator[AsyncDockerContainer]:
-    """Datatimes container."""
-
-    async def _check() -> None:
-        auth = BasicAuth(username="user", password="password")
-        async with AsyncClient(base_url="http://localhost:36000", auth=auth) as client:
-            response = await client.get("/user/datatimes")
-            response.raise_for_status()
-
-    container = AsyncDockerContainer(
-        "ghcr.io/radio-aktywne/databases/datatimes:latest",
-        network="host",
-    )
-
-    waiter = Waiter(
-        condition=CallableCondition(_check),
-        strategy=TimeoutStrategy(30),
-    )
-
-    async with container as container:
-        await waiter.wait()
-        yield container
-
-
-@pytest_asyncio.fixture(scope="session")
-async def emishows(
-    datashows: AsyncDockerContainer, datatimes: AsyncDockerContainer
+async def beaver(
+    howlite: AsyncDockerContainer, sapphire: AsyncDockerContainer
 ) -> AsyncGenerator[AsyncDockerContainer]:
-    """Emishows container."""
+    """Beaver container."""
 
     async def _check() -> None:
         async with AsyncClient(base_url="http://localhost:35000") as client:
@@ -94,7 +94,7 @@ async def emishows(
             response.raise_for_status()
 
     container = AsyncDockerContainer(
-        "ghcr.io/radio-aktywne/services/emishows:latest",
+        "ghcr.io/radio-aktywne/services/beaver:latest",
         network="host",
     )
 
@@ -109,8 +109,8 @@ async def emishows(
 
 
 @pytest_asyncio.fixture(scope="session")
-async def mediarecords() -> AsyncGenerator[AsyncDockerContainer]:
-    """Mediarecords container."""
+async def emerald() -> AsyncGenerator[AsyncDockerContainer]:
+    """Emerald container."""
 
     async def _check() -> None:
         async with AsyncClient(base_url="http://localhost:30000") as client:
@@ -118,7 +118,7 @@ async def mediarecords() -> AsyncGenerator[AsyncDockerContainer]:
             response.raise_for_status()
 
     container = AsyncDockerContainer(
-        "ghcr.io/radio-aktywne/databases/mediarecords:latest",
+        "ghcr.io/radio-aktywne/databases/emerald:latest",
         network="host",
     )
 
@@ -133,18 +133,18 @@ async def mediarecords() -> AsyncGenerator[AsyncDockerContainer]:
 
 
 @pytest_asyncio.fixture(scope="session")
-async def emishows_client(
-    emishows: AsyncDockerContainer,
+async def beaver_client(
+    beaver: AsyncDockerContainer,
 ) -> AsyncGenerator[AsyncClient]:
-    """Emishows client."""
+    """Beaver client."""
 
     async with AsyncClient(base_url="http://localhost:35000") as client:
         yield client
 
 
 @pytest.fixture(scope="session")
-def mediarecords_client(mediarecords: AsyncDockerContainer) -> Minio:
-    """Mediarecords client."""
+def emerald_client(emerald: AsyncDockerContainer) -> Minio:
+    """Emerald client."""
 
     return Minio(
         endpoint="localhost:30000",
@@ -157,7 +157,7 @@ def mediarecords_client(mediarecords: AsyncDockerContainer) -> Minio:
 
 @pytest_asyncio.fixture(scope="session")
 async def client(
-    app: Litestar, emishows: AsyncDockerContainer, mediarecords: AsyncDockerContainer
+    app: Litestar, beaver: AsyncDockerContainer, emerald: AsyncDockerContainer
 ) -> AsyncGenerator[AsyncTestClient]:
     """Reusable test client."""
 
