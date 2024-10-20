@@ -1,7 +1,7 @@
 [tool.poetry]
 package-mode = true
 name = "gecko"
-version = "0.18.0"
+version = "0.19.0"
 description = "Broadcast recordings 📼"
 authors = ["radio-aktywne <it@radioaktywne.pl>"]
 
