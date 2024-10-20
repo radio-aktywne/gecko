@@ -11,7 +11,7 @@ For example, you can use `curl` to list all records for an event:
 ```sh
 curl \
     --request GET \
-    http://localhost:31000/records/0f339cb0-7ab4-43fe-852d-75708232f76c
+    http://localhost:10700/records/0f339cb0-7ab4-43fe-852d-75708232f76c
 ```
 
 ## Uploading and downloading records
@@ -28,7 +28,7 @@ curl \
     --header "Content-Type: audio/ogg" \
     --header "Transfer-Encoding: chunked" \
     --upload-file record.ogg \
-    http://localhost:31000/records/0f339cb0-7ab4-43fe-852d-75708232f76c/2024-01-01T00:00:00
+    http://localhost:10700/records/0f339cb0-7ab4-43fe-852d-75708232f76c/2024-01-01T00:00:00
 ```
 
 To download a record, you can use
@@ -39,7 +39,7 @@ and save the response body to a file:
 curl \
     --request GET \
     --output record.ogg \
-    http://localhost:31000/record/0f339cb0-7ab4-43fe-852d-75708232f76c/2024-01-01T00:00:00
+    http://localhost:10700/record/0f339cb0-7ab4-43fe-852d-75708232f76c/2024-01-01T00:00:00
 ```
 
 ## Deleting records
@@ -50,7 +50,7 @@ For example, you can use `curl` to delete a record:
 ```sh
 curl \
     --request DELETE \
-    http://localhost:31000/records/0f339cb0-7ab4-43fe-852d-75708232f76c/2024-01-01T00:00:00
+    http://localhost:10700/records/0f339cb0-7ab4-43fe-852d-75708232f76c/2024-01-01T00:00:00
 ```
 
 ## Ping
@@ -65,5 +65,5 @@ For example, you can use `curl` to do that:
 curl \
     --request HEAD \
     --head \
-    http://localhost:31000/ping
+    http://localhost:10700/ping
 ```
