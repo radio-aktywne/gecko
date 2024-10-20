@@ -1,18 +1,18 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-_commit: 0.16.0
-_src_path: gh:radio-aktywne/template-app-litestar
+_commit: 0.17.0
+_src_path: gh:radio-aktywne/template-service-litestar
 accountname: radio-aktywne
-appname: emirecords
-description: Emission recordings 📼
+description: Broadcast recordings 📼
 docs: true
-docsurl: https://radio-aktywne.github.io/app-emirecords
+docsurl: https://radio-aktywne.github.io/emirecords
 email: it@radioaktywne.pl
 envprefix: EMIRECORDS
 events: false
-imagename: apps/emirecords
+imagename: services/emirecords
 importname: emirecords
 port: 31000
 registry: true
 releases: true
-reponame: app-emirecords
-repourl: https://github.com/radio-aktywne/app-emirecords
+reponame: emirecords
+repourl: https://github.com/radio-aktywne/emirecords
+servicename: emirecords

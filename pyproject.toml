@@ -2,7 +2,7 @@
 package-mode = true
 name = "emirecords"
 version = "0.18.0"
-description = "Emission recordings 📼"
+description = "Broadcast recordings 📼"
 authors = ["radio-aktywne <it@radioaktywne.pl>"]
 
 [tool.poetry.dependencies]
