@@ -9,7 +9,7 @@ class ServerConfig(BaseModel):
     host: str = "0.0.0.0"
     """Host to run the server on."""
 
-    port: int = Field(31000, ge=0, le=65535)
+    port: int = Field(10700, ge=0, le=65535)
     """Port to run the server on."""
 
     trusted: str | list[str] | None = "*"
@@ -25,7 +25,7 @@ class BeaverHTTPConfig(BaseModel):
     host: str = "localhost"
     """Host of the HTTP API."""
 
-    port: int | None = Field(35000, ge=1, le=65535)
+    port: int | None = Field(10500, ge=1, le=65535)
     """Port of the HTTP API."""
 
     path: str | None = None
@@ -61,7 +61,7 @@ class EmeraldS3Config(BaseModel):
     host: str = "localhost"
     """Host of the S3 API."""
 
-    port: int | None = Field(30000, ge=1, le=65535)
+    port: int | None = Field(10710, ge=1, le=65535)
     """Port of the S3 API."""
 
     user: str = "readwrite"

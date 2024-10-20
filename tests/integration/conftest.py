@@ -36,7 +36,7 @@ async def howlite() -> AsyncGenerator[AsyncDockerContainer]:
 
     async def _check() -> None:
         auth = BasicAuth(username="user", password="password")
-        async with AsyncClient(base_url="http://localhost:36000", auth=auth) as client:
+        async with AsyncClient(base_url="http://localhost:10520", auth=auth) as client:
             response = await client.get("/user/calendar")
             response.raise_for_status()
 
@@ -71,7 +71,7 @@ async def sapphire() -> AsyncGenerator[AsyncDockerContainer]:
                 "usql",
                 "--command",
                 "SELECT 1;",
-                "postgres://user:password@localhost:34000/database",
+                "postgres://user:password@localhost:10510/database",
             ]
         ),
         strategy=TimeoutStrategy(30),
@@ -89,7 +89,7 @@ async def beaver(
     """Beaver container."""
 
     async def _check() -> None:
-        async with AsyncClient(base_url="http://localhost:35000") as client:
+        async with AsyncClient(base_url="http://localhost:10500") as client:
             response = await client.get("/ping")
             response.raise_for_status()
 
@@ -113,7 +113,7 @@ async def emerald() -> AsyncGenerator[AsyncDockerContainer]:
     """Emerald container."""
 
     async def _check() -> None:
-        async with AsyncClient(base_url="http://localhost:30000") as client:
+        async with AsyncClient(base_url="http://localhost:10710") as client:
             response = await client.get("/minio/health/ready")
             response.raise_for_status()
 
@@ -138,7 +138,7 @@ async def beaver_client(
 ) -> AsyncGenerator[AsyncClient]:
     """Beaver client."""
 
-    async with AsyncClient(base_url="http://localhost:35000") as client:
+    async with AsyncClient(base_url="http://localhost:10500") as client:
         yield client
 
 
@@ -147,7 +147,7 @@ def emerald_client(emerald: AsyncDockerContainer) -> Minio:
     """Emerald client."""
 
     return Minio(
-        endpoint="localhost:30000",
+        endpoint="localhost:10710",
         access_key="readwrite",
         secret_key="password",
         secure=False,

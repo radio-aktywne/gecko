@@ -10,7 +10,7 @@ envprefix: GECKO
 events: false
 imagename: services/gecko
 importname: gecko
-port: 31000
+port: 10700
 registry: true
 releases: true
 reponame: gecko

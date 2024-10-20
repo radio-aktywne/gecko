@@ -12,7 +12,7 @@ You can configure the service at runtime using various environment variables:
   (default: `0.0.0.0`)
 - `GECKO__SERVER__PORT` -
   port to run the server on
-  (default: `31000`)
+  (default: `10700`)
 - `GECKO__SERVER__TRUSTED` -
   trusted IP addresses
   (default: `*`)
@@ -24,7 +24,7 @@ You can configure the service at runtime using various environment variables:
   (default: `localhost`)
 - `GECKO__BEAVER__HTTP__PORT` -
   port of the HTTP API of the beaver service
-  (default: `35000`)
+  (default: `10500`)
 - `GECKO__BEAVER__HTTP__PATH` -
   path of the HTTP API of the beaver service
   (default: ``)
@@ -36,7 +36,7 @@ You can configure the service at runtime using various environment variables:
   (default: `localhost`)
 - `GECKO__EMERALD__S3__PORT` -
   port of the S3 API of the emerald database
-  (default: `30000`)
+  (default: `10710`)
 - `GECKO__EMERALD__S3__USER` -
   user to authenticate with the S3 API of the emerald database
   (default: `readwrite`)
