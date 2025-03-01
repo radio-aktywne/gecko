@@ -105,5 +105,5 @@ class Config(BaseConfig):
     emerald: EmeraldConfig = EmeraldConfig()
     """Configuration for the emerald database."""
 
-    debug: bool = False
+    debug: bool = True
     """Enable debug mode."""

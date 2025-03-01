@@ -16,5 +16,5 @@ services:
       - "GECKO__EMERALD__S3__PORT=${GECKO__EMERALD__S3__PORT:-10710}"
       - "GECKO__EMERALD__S3__USER=${GECKO__EMERALD__S3__USER:-readwrite}"
       - "GECKO__EMERALD__S3__PASSWORD=${GECKO__EMERALD__S3__PASSWORD:-password}"
-      - "GECKO__DEBUG=${GECKO__DEBUG:-false}"
+      - "GECKO__DEBUG=${GECKO__DEBUG:-true}"
     network_mode: host
