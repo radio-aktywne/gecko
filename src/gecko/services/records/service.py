@@ -3,7 +3,6 @@ from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
 from uuid import UUID
-
 from zoneinfo import ZoneInfo
 
 from gecko.services.beaver import errors as be
