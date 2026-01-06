@@ -11,7 +11,7 @@ from gecko.services.records.service import RecordsService
 class Service:
     """Service for the records endpoint."""
 
-    def __init__(self, records: RecordsService):
+    def __init__(self, records: RecordsService) -> None:
         self._records = records
 
     @contextmanager
@@ -35,7 +35,6 @@ class Service:
 
     async def list(self, request: m.ListRequest) -> m.ListResponse:
         """List records."""
-
         event = request.event
         after = request.after
         before = request.before
@@ -71,7 +70,6 @@ class Service:
 
     async def download(self, request: m.DownloadRequest) -> m.DownloadResponse:
         """Download a record."""
-
         event = request.event
         start = request.start
 
@@ -85,13 +83,13 @@ class Service:
 
         content = res.content
 
-        type = content.type
+        content_type = content.type
         size = content.size
         tag = content.tag
         modified = content.modified
         data = content.data
         return m.DownloadResponse(
-            type=type,
+            type=content_type,
             size=size,
             tag=tag,
             modified=modified,
@@ -102,7 +100,6 @@ class Service:
         self, request: m.HeadDownloadRequest
     ) -> m.HeadDownloadResponse:
         """Download record headers."""
-
         event = request.event
         start = request.start
 
@@ -116,12 +113,12 @@ class Service:
 
         content = res.content
 
-        type = content.type
+        content_type = content.type
         size = content.size
         tag = content.tag
         modified = content.modified
         return m.HeadDownloadResponse(
-            type=type,
+            type=content_type,
             size=size,
             tag=tag,
             modified=modified,
@@ -129,14 +126,13 @@ class Service:
 
     async def upload(self, request: m.UploadRequest) -> m.UploadResponse:
         """Upload a record."""
-
         event = request.event
         start = request.start
-        type = request.type
+        content_type = request.type
         data = request.data
 
         content = rm.UploadContent(
-            type=type,
+            type=content_type,
             data=data,
         )
         req = rm.UploadRequest(
@@ -152,7 +148,6 @@ class Service:
 
     async def delete(self, request: m.DeleteRequest) -> m.DeleteResponse:
         """Delete a record."""
-
         event = request.event
         start = request.start
 

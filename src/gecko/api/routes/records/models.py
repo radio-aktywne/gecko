@@ -1,4 +1,4 @@
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Sequence
 from datetime import datetime
 from uuid import UUID
 
@@ -18,6 +18,7 @@ class Record(SerializableModel):
 
     @staticmethod
     def map(record: rm.Record) -> "Record":
+        """Map to internal representation."""
         return Record(
             event=record.event,
             start=record.start,
@@ -36,7 +37,7 @@ class RecordList(SerializableModel):
     offset: int | None
     """Number of skipped records."""
 
-    records: list[Record]
+    records: Sequence[Record]
     """List of records."""
 
 
@@ -204,8 +205,6 @@ class UploadRequest:
 class UploadResponse:
     """Response for uploading a record."""
 
-    pass
-
 
 @datamodel
 class DeleteRequest:
@@ -221,5 +220,3 @@ class DeleteRequest:
 @datamodel
 class DeleteResponse:
     """Response for deleting a record."""
-
-    pass

@@ -2,7 +2,7 @@
 
 <div align="center">
 
-Broadcast recordings 📼
+Broadcast recordings service 📼
 
 [![Lint](https://github.com/radio-aktywne/gecko/actions/workflows/lint.yaml/badge.svg)](https://github.com/radio-aktywne/gecko/actions/workflows/lint.yaml)
 [![Test](https://github.com/radio-aktywne/gecko/actions/workflows/test.yaml/badge.svg)](https://github.com/radio-aktywne/gecko/actions/workflows/test.yaml)
@@ -16,7 +16,8 @@ Broadcast recordings 📼
 
 ## 💡 About
 
-`gecko` is a service for recording live broadcasts.
+`gecko` is a [`Litestar`](https://litestar.dev) service
+for recording live broadcasts.
 
 ## 📄 Further Reading
 

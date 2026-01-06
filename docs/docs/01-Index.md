@@ -5,8 +5,9 @@ title: Index
 
 # gecko
 
-Broadcast recordings 📼
+Broadcast recordings service 📼
 
 ## 💡 About
 
-`gecko` is a service for recording live broadcasts.
+`gecko` is a [`Litestar`](https://litestar.dev) service
+for recording live broadcasts.
