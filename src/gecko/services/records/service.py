@@ -1,9 +1,13 @@
-from collections.abc import Generator
+from collections.abc import Generator, Sequence
 from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
+from typing import TYPE_CHECKING, cast
 from uuid import UUID
 from zoneinfo import ZoneInfo
+
+if TYPE_CHECKING:
+    from httpx import Response
 
 from gecko.services.beaver import errors as be
 from gecko.services.beaver import models as bm
@@ -18,7 +22,7 @@ from gecko.services.records import models as m
 class RecordsService:
     """Service to manage records."""
 
-    def __init__(self, beaver: BeaverService, emerald: EmeraldService):
+    def __init__(self, beaver: BeaverService, emerald: EmeraldService) -> None:
         self._beaver = beaver
         self._emerald = emerald
 
@@ -49,7 +53,8 @@ class RecordsService:
                 res = await self._beaver.events.mget(req)
             except be.ServiceError as ex:
                 if hasattr(ex, "response"):
-                    if ex.response.status_code == HTTPStatus.NOT_FOUND:
+                    response = cast("Response", ex.response)  # type: ignore[attr-defined]
+                    if response.status_code == HTTPStatus.NOT_FOUND:
                         return None
 
                 raise
@@ -128,7 +133,7 @@ class RecordsService:
         start = self._parse_name(name)
         return event, start
 
-    async def _list_get_objects(self, prefix: str) -> list[em.Object]:
+    async def _list_get_objects(self, prefix: str) -> Sequence[em.Object]:
         req = em.ListRequest(
             prefix=prefix,
             recursive=False,
@@ -136,13 +141,13 @@ class RecordsService:
 
         with self._handle_errors():
             res = await self._emerald.list(req)
-            return [object async for object in res.objects]
+            return [obj async for obj in res.objects]
 
-    def _list_map_objects(self, objects: list[em.Object]) -> list[m.Record]:
+    def _list_map_objects(self, objects: Sequence[em.Object]) -> Sequence[m.Record]:
         records = []
 
-        for object in objects:
-            event, start = self._parse_key(object.name)
+        for obj in objects:
+            event, start = self._parse_key(obj.name)
 
             record = m.Record(
                 event=event,
@@ -154,8 +159,8 @@ class RecordsService:
         return records
 
     def _list_sort_records(
-        self, records: list[m.Record], order: m.ListOrder | None
-    ) -> list[m.Record]:
+        self, records: Sequence[m.Record], order: m.ListOrder | None
+    ) -> Sequence[m.Record]:
         if order is None:
             return records
 
@@ -166,8 +171,11 @@ class RecordsService:
         )
 
     def _list_filter_records(
-        self, records: list[m.Record], after: datetime | None, before: datetime | None
-    ) -> list[m.Record]:
+        self,
+        records: Sequence[m.Record],
+        after: datetime | None,
+        before: datetime | None,
+    ) -> Sequence[m.Record]:
         if after is not None:
             records = [record for record in records if record.start > after]
 
@@ -177,8 +185,8 @@ class RecordsService:
         return records
 
     def _list_pick_records(
-        self, records: list[m.Record], limit: int | None, offset: int | None
-    ) -> list[m.Record]:
+        self, records: Sequence[m.Record], limit: int | None, offset: int | None
+    ) -> Sequence[m.Record]:
         if offset is not None:
             records = records[offset:]
 
@@ -189,7 +197,6 @@ class RecordsService:
 
     async def list(self, request: m.ListRequest) -> m.ListResponse:
         """List records."""
-
         event = request.event
         after = request.after
         before = request.before
@@ -220,7 +227,6 @@ class RecordsService:
 
     async def download(self, request: m.DownloadRequest) -> m.DownloadResponse:
         """Download a record."""
-
         event = request.event
         start = request.start
 
@@ -233,9 +239,8 @@ class RecordsService:
             name=key,
         )
 
-        with self._handle_errors():
-            with self._handle_not_found(event, start):
-                res = await self._emerald.download(req)
+        with self._handle_errors(), self._handle_not_found(event, start):
+            res = await self._emerald.download(req)
 
         content = res.content
 
@@ -245,7 +250,6 @@ class RecordsService:
 
     async def upload(self, request: m.UploadRequest) -> m.UploadResponse:
         """Upload a record."""
-
         event = request.event
         start = request.start
         content = request.content
@@ -267,7 +271,6 @@ class RecordsService:
 
     async def delete(self, request: m.DeleteRequest) -> m.DeleteResponse:
         """Delete a record."""
-
         event = request.event
         start = request.start
 
@@ -280,8 +283,7 @@ class RecordsService:
             name=key,
         )
 
-        with self._handle_errors():
-            with self._handle_not_found(event, start):
-                await self._emerald.delete(req)
+        with self._handle_errors(), self._handle_not_found(event, start):
+            await self._emerald.delete(req)
 
         return m.DeleteResponse()

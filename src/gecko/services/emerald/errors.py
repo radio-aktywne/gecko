@@ -1,8 +1,6 @@
 class ServiceError(Exception):
     """Base class for emerald errors."""
 
-    pass
-
 
 class NotFoundError(ServiceError):
     """Raised when an object is not found."""

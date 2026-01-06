@@ -5,14 +5,12 @@ from uuid import UUID
 class ServiceError(Exception):
     """Base class for service errors."""
 
-    pass
-
 
 class BadEventTypeError(ServiceError):
     """Raised when event type is not supported."""
 
-    def __init__(self, type: str) -> None:
-        super().__init__(f"Event of type {type} cannot be recorded.")
+    def __init__(self, event_type: str) -> None:
+        super().__init__(f"Event of type {event_type} cannot be recorded.")
 
 
 class EventNotFoundError(ServiceError):
@@ -43,10 +41,6 @@ class RecordNotFoundError(ServiceError):
 class BeaverError(ServiceError):
     """Raised when an beaver service operation fails."""
 
-    pass
-
 
 class EmeraldError(ServiceError):
     """Raised when a emerald database operation fails."""
-
-    pass
