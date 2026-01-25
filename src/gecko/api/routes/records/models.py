@@ -14,7 +14,7 @@ class Record(SerializableModel):
     """Identifier of the event."""
 
     start: NaiveDatetime
-    """Start time of the event instance in event timezone."""
+    """Start datetime of the event instance in event timezone."""
 
     @staticmethod
     def map(record: rm.Record) -> "Record":
@@ -102,10 +102,10 @@ class ListRequest:
     """Identifier of the event to list records for."""
 
     after: ListRequestAfter
-    """Only list records after this time (in event timezone)."""
+    """Only list records after this datetime (in event timezone)."""
 
     before: ListRequestBefore
-    """Only list records before this date (in event timezone)."""
+    """Only list records before this datetime (in event timezone)."""
 
     limit: ListRequestLimit
     """Maximum number of records to return."""
@@ -133,7 +133,7 @@ class DownloadRequest:
     """Identifier of the event."""
 
     start: DownloadRequestStart
-    """Start time of the event instance in event timezone."""
+    """Start datetime of the event instance in event timezone."""
 
 
 @datamodel
@@ -150,7 +150,7 @@ class DownloadResponse:
     """ETag of the record data."""
 
     modified: DownloadResponseModified
-    """Date and time when the record was last modified."""
+    """Datetime when the record was last modified."""
 
     data: DownloadResponseData
     """Data of the record."""
@@ -164,7 +164,7 @@ class HeadDownloadRequest:
     """Identifier of the event."""
 
     start: HeadDownloadRequestStart
-    """Start time of the event instance in event timezone."""
+    """Start datetime of the event instance in event timezone."""
 
 
 @datamodel
@@ -181,7 +181,7 @@ class HeadDownloadResponse:
     """ETag of the record data."""
 
     modified: HeadDownloadResponseModified
-    """Date and time when the record was last modified."""
+    """Datetime when the record was last modified."""
 
 
 @datamodel
@@ -192,7 +192,7 @@ class UploadRequest:
     """Identifier of the event."""
 
     start: UploadRequestStart
-    """Start time of the event instance in event timezone."""
+    """Start datetime of the event instance in event timezone."""
 
     type: UploadRequestType
     """Type of the record data."""
@@ -214,7 +214,7 @@ class DeleteRequest:
     """Identifier of the event."""
 
     start: DeleteRequestStart
-    """Start time of the event instance in event timezone."""
+    """Start datetime of the event instance in event timezone."""
 
 
 @datamodel
