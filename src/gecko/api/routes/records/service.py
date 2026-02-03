@@ -19,144 +19,92 @@ class Service:
         try:
             yield
         except re.EventNotFoundError as ex:
-            raise e.EventNotFoundError(str(ex)) from ex
+            raise e.EventNotFoundError from ex
         except re.BadEventTypeError as ex:
-            raise e.BadEventTypeError(str(ex)) from ex
+            raise e.BadEventTypeError from ex
         except re.InstanceNotFoundError as ex:
-            raise e.InstanceNotFoundError(str(ex)) from ex
+            raise e.InstanceNotFoundError from ex
         except re.RecordNotFoundError as ex:
-            raise e.RecordNotFoundError(str(ex)) from ex
+            raise e.RecordNotFoundError from ex
         except re.BeaverError as ex:
-            raise e.BeaverError(str(ex)) from ex
+            raise e.BeaverError from ex
         except re.EmeraldError as ex:
-            raise e.EmeraldError(str(ex)) from ex
+            raise e.EmeraldError from ex
         except re.ServiceError as ex:
-            raise e.ServiceError(str(ex)) from ex
+            raise e.ServiceError from ex
 
     async def list(self, request: m.ListRequest) -> m.ListResponse:
         """List records."""
-        event = request.event
-        after = request.after
-        before = request.before
-        limit = request.limit
-        offset = request.offset
-        order = request.order
-
-        req = rm.ListRequest(
-            event=event,
-            after=after,
-            before=before,
-            limit=limit,
-            offset=offset,
-            order=order,
+        list_request = rm.ListRequest(
+            event=request.event,
+            after=request.after,
+            before=request.before,
+            limit=request.limit,
+            offset=request.offset,
+            order=request.order,
         )
 
         with self._handle_errors():
-            res = await self._records.list(req)
+            list_response = await self._records.list(list_request)
 
-        count = res.count
-        records = res.records
-
-        records = [m.Record.map(record) for record in records]
-        results = m.RecordList(
-            count=count,
-            limit=limit,
-            offset=offset,
-            records=records,
-        )
         return m.ListResponse(
-            results=results,
+            results=m.RecordList(
+                count=list_response.count,
+                limit=request.limit,
+                offset=request.offset,
+                records=[m.Record.map(record) for record in list_response.records],
+            )
         )
 
     async def download(self, request: m.DownloadRequest) -> m.DownloadResponse:
         """Download a record."""
-        event = request.event
-        start = request.start
-
-        req = rm.DownloadRequest(
-            event=event,
-            start=start,
-        )
+        download_request = rm.DownloadRequest(event=request.event, start=request.start)
 
         with self._handle_errors():
-            res = await self._records.download(req)
+            download_response = await self._records.download(download_request)
 
-        content = res.content
-
-        content_type = content.type
-        size = content.size
-        tag = content.tag
-        modified = content.modified
-        data = content.data
         return m.DownloadResponse(
-            type=content_type,
-            size=size,
-            tag=tag,
-            modified=modified,
-            data=data,
+            type=download_response.content.type,
+            size=download_response.content.size,
+            tag=download_response.content.tag,
+            modified=download_response.content.modified,
+            data=download_response.content.data,
         )
 
     async def headdownload(
         self, request: m.HeadDownloadRequest
     ) -> m.HeadDownloadResponse:
         """Download record headers."""
-        event = request.event
-        start = request.start
-
-        req = rm.DownloadRequest(
-            event=event,
-            start=start,
-        )
+        download_request = rm.DownloadRequest(event=request.event, start=request.start)
 
         with self._handle_errors():
-            res = await self._records.download(req)
+            download_response = await self._records.download(download_request)
 
-        content = res.content
-
-        content_type = content.type
-        size = content.size
-        tag = content.tag
-        modified = content.modified
         return m.HeadDownloadResponse(
-            type=content_type,
-            size=size,
-            tag=tag,
-            modified=modified,
+            type=download_response.content.type,
+            size=download_response.content.size,
+            tag=download_response.content.tag,
+            modified=download_response.content.modified,
         )
 
     async def upload(self, request: m.UploadRequest) -> m.UploadResponse:
         """Upload a record."""
-        event = request.event
-        start = request.start
-        content_type = request.type
-        data = request.data
-
-        content = rm.UploadContent(
-            type=content_type,
-            data=data,
-        )
-        req = rm.UploadRequest(
-            event=event,
-            start=start,
-            content=content,
+        upload_request = rm.UploadRequest(
+            event=request.event,
+            start=request.start,
+            content=rm.UploadContent(type=request.type, data=request.data),
         )
 
         with self._handle_errors():
-            await self._records.upload(req)
+            await self._records.upload(upload_request)
 
         return m.UploadResponse()
 
     async def delete(self, request: m.DeleteRequest) -> m.DeleteResponse:
         """Delete a record."""
-        event = request.event
-        start = request.start
-
-        req = rm.DeleteRequest(
-            event=event,
-            start=start,
-        )
+        delete_request = rm.DeleteRequest(event=request.event, start=request.start)
 
         with self._handle_errors():
-            await self._records.delete(req)
+            await self._records.delete(delete_request)
 
         return m.DeleteResponse()
