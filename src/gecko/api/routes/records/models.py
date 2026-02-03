@@ -19,10 +19,7 @@ class Record(SerializableModel):
     @staticmethod
     def map(record: rm.Record) -> "Record":
         """Map to internal representation."""
-        return Record(
-            event=record.event,
-            start=record.start,
-        )
+        return Record(event=record.event, start=record.start)
 
 
 class RecordList(SerializableModel):
@@ -41,57 +38,57 @@ class RecordList(SerializableModel):
     """List of records."""
 
 
-ListRequestEvent = UUID
+type ListRequestEvent = UUID
 
-ListRequestAfter = NaiveDatetime | None
+type ListRequestAfter = NaiveDatetime | None
 
-ListRequestBefore = NaiveDatetime | None
+type ListRequestBefore = NaiveDatetime | None
 
-ListRequestLimit = int | None
+type ListRequestLimit = int | None
 
-ListRequestOffset = int | None
+type ListRequestOffset = int | None
 
-ListRequestOrder = rm.ListOrder | None
+type ListRequestOrder = rm.ListOrder | None
 
-ListResponseResults = RecordList
+type ListResponseResults = RecordList
 
-DownloadRequestEvent = UUID
+type DownloadRequestEvent = UUID
 
-DownloadRequestStart = NaiveDatetime
+type DownloadRequestStart = NaiveDatetime
 
-DownloadResponseType = str
+type DownloadResponseType = str
 
-DownloadResponseSize = int
+type DownloadResponseSize = int
 
-DownloadResponseTag = str
+type DownloadResponseTag = str
 
-DownloadResponseModified = datetime
+type DownloadResponseModified = datetime
 
-DownloadResponseData = AsyncIterator[bytes]
+type DownloadResponseData = AsyncIterator[bytes]
 
-HeadDownloadRequestEvent = UUID
+type HeadDownloadRequestEvent = UUID
 
-HeadDownloadRequestStart = NaiveDatetime
+type HeadDownloadRequestStart = NaiveDatetime
 
-HeadDownloadResponseType = str
+type HeadDownloadResponseType = str
 
-HeadDownloadResponseSize = int
+type HeadDownloadResponseSize = int
 
-HeadDownloadResponseTag = str
+type HeadDownloadResponseTag = str
 
-HeadDownloadResponseModified = datetime
+type HeadDownloadResponseModified = datetime
 
-UploadRequestEvent = UUID
+type UploadRequestEvent = UUID
 
-UploadRequestStart = NaiveDatetime
+type UploadRequestStart = NaiveDatetime
 
-UploadRequestType = str
+type UploadRequestType = str
 
-UploadRequestData = AsyncIterator[bytes]
+type UploadRequestData = AsyncIterator[bytes]
 
-DeleteRequestEvent = UUID
+type DeleteRequestEvent = UUID
 
-DeleteRequestStart = NaiveDatetime
+type DeleteRequestStart = NaiveDatetime
 
 
 @datamodel

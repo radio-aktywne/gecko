@@ -1,6 +1,7 @@
+from datetime import datetime
 from uuid import UUID
 
-from gecko.utils.time import NaiveDatetime, isostringify
+from gecko.utils.time import isostringify
 
 
 class ServiceError(Exception):
@@ -17,25 +18,25 @@ class BadEventTypeError(ServiceError):
 class EventNotFoundError(ServiceError):
     """Raised when event is not found."""
 
-    def __init__(self, event: UUID) -> None:
-        super().__init__(f"Live event not found for id {event}.")
+    def __init__(self, event_id: UUID) -> None:
+        super().__init__(f"Live event not found for id {event_id}.")
 
 
 class InstanceNotFoundError(ServiceError):
     """Raised when instance is not found."""
 
-    def __init__(self, event: UUID, start: NaiveDatetime) -> None:
+    def __init__(self, event_id: UUID, start: datetime) -> None:
         super().__init__(
-            f"Instance not found for live event {event} starting at {isostringify(start)}."
+            f"Instance not found for live event {event_id} starting at {isostringify(start)}."
         )
 
 
 class RecordNotFoundError(ServiceError):
     """Raised when record is not found."""
 
-    def __init__(self, event: UUID, start: NaiveDatetime) -> None:
+    def __init__(self, event_id: UUID, start: datetime) -> None:
         super().__init__(
-            f"Record not found for instance of live event {event} starting at {isostringify(start)}."
+            f"Record not found for instance of live event {event_id} starting at {isostringify(start)}."
         )
 
 

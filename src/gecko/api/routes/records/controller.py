@@ -15,7 +15,7 @@ from gecko.api.exceptions import BadRequestException, NotFoundException
 from gecko.api.routes.records import errors as e
 from gecko.api.routes.records import models as m
 from gecko.api.routes.records.service import Service
-from gecko.api.validator import Validator
+from gecko.models.base import Jsonable, Serializable
 from gecko.services.records.service import RecordsService
 from gecko.state import State
 from gecko.utils.time import httpstringify
@@ -26,10 +26,7 @@ class DependenciesBuilder:
 
     async def _build_service(self, state: State) -> Service:
         return Service(
-            records=RecordsService(
-                beaver=state.beaver,
-                emerald=state.emerald,
-            )
+            records=RecordsService(beaver=state.beaver, emerald=state.emerald)
         )
 
     def build(self) -> Mapping[str, Provide]:
@@ -45,72 +42,70 @@ class Controller(BaseController):
     dependencies = DependenciesBuilder().build()
 
     @handlers.get(
-        "/{event:uuid}",
+        "/{event:str}",
         summary="List records",
     )
     async def list(  # noqa: PLR0913
         self,
         service: Service,
         event: Annotated[
-            m.ListRequestEvent,
+            Serializable[m.ListRequestEvent],
             Parameter(
                 description="Identifier of the event to list records for.",
             ),
         ],
         after: Annotated[
-            m.ListRequestAfter,
+            Jsonable[m.ListRequestAfter] | None,
             Parameter(
                 description="Only list records after this datetime (in event timezone).",
             ),
         ] = None,
         before: Annotated[
-            m.ListRequestBefore,
+            Jsonable[m.ListRequestBefore] | None,
             Parameter(
                 description="Only list records before this datetime (in event timezone).",
             ),
         ] = None,
         limit: Annotated[
-            m.ListRequestLimit,
+            Jsonable[m.ListRequestLimit] | None,
             Parameter(
-                description="Maximum number of records to return.",
+                description="Maximum number of records to return. Default is 10.",
             ),
-        ] = 10,
+        ] = None,
         offset: Annotated[
-            m.ListRequestOffset,
+            Jsonable[m.ListRequestOffset] | None,
             Parameter(
                 description="Number of records to skip.",
             ),
         ] = None,
         order: Annotated[
-            m.ListRequestOrder,
+            Jsonable[m.ListRequestOrder] | None,
             Parameter(
                 description="Order to apply to the results.",
             ),
         ] = None,
-    ) -> Response[m.ListResponseResults]:
+    ) -> Response[Serializable[m.ListResponseResults]]:
         """List records."""
-        req = m.ListRequest(
-            event=event,
-            after=after,
-            before=before,
-            limit=limit,
-            offset=offset,
-            order=order,
+        request = m.ListRequest(
+            event=event.root,
+            after=after.root if after else None,
+            before=before.root if before else None,
+            limit=limit.root if limit else 10,
+            offset=offset.root if offset else None,
+            order=order.root if order else None,
         )
 
         try:
-            res = await service.list(req)
+            response = await service.list(request)
         except e.BadEventTypeError as ex:
             raise BadRequestException from ex
         except e.EventNotFoundError as ex:
             raise NotFoundException from ex
 
-        results = res.results
-
-        return Response(results)
+        return Response(Serializable(response.results))
 
     @handlers.get(
-        "/{event:uuid}/{start:str}",
+        "/{event:str}/{start:str}",
         summary="Download record",
         response_headers=[
             ResponseHeader(
@@ -147,28 +142,23 @@ class Controller(BaseController):
         self,
         service: Service,
         event: Annotated[
-            m.DownloadRequestEvent,
+            Serializable[m.DownloadRequestEvent],
             Parameter(
                 description="Identifier of the event.",
             ),
         ],
         start: Annotated[
-            str,
+            Serializable[m.DownloadRequestStart],
             Parameter(
                 description="Start datetime of the event instance in event timezone.",
             ),
         ],
     ) -> Stream:
         """Download a record."""
-        parsed_start = Validator[m.DownloadRequestStart].validate_object(start)
-
-        req = m.DownloadRequest(
-            event=event,
-            start=parsed_start,
-        )
+        request = m.DownloadRequest(event=event.root, start=start.root)
 
         try:
-            res = await service.download(req)
+            response = await service.download(request)
         except e.BadEventTypeError as ex:
             raise BadRequestException from ex
         except e.InstanceNotFoundError as ex:
@@ -176,25 +166,18 @@ class Controller(BaseController):
         except e.RecordNotFoundError as ex:
             raise NotFoundException from ex
 
-        content_type = res.type
-        size = res.size
-        tag = res.tag
-        modified = res.modified
-        data = res.data
-
-        headers = {
-            "Content-Type": content_type,
-            "Content-Length": str(size),
-            "ETag": tag,
-            "Last-Modified": httpstringify(modified),
-        }
         return Stream(
-            data,
-            headers=headers,
+            response.data,
+            headers={
+                "Content-Type": response.type,
+                "Content-Length": str(response.size),
+                "ETag": response.tag,
+                "Last-Modified": httpstringify(response.modified),
+            },
         )
 
     @handlers.head(
-        "/{event:uuid}/{start:str}",
+        "/{event:str}/{start:str}",
         summary="Download record headers",
         response_headers=[
             ResponseHeader(
@@ -228,28 +211,23 @@ class Controller(BaseController):
         self,
         service: Service,
         event: Annotated[
-            m.HeadDownloadRequestEvent,
+            Serializable[m.HeadDownloadRequestEvent],
             Parameter(
                 description="Identifier of the event.",
             ),
         ],
         start: Annotated[
-            str,
+            Serializable[m.HeadDownloadRequestStart],
             Parameter(
                 description="Start datetime of the event instance in event timezone.",
             ),
         ],
     ) -> Response[None]:
         """Download record headers."""
-        parsed_start = Validator[m.HeadDownloadRequestStart].validate_object(start)
-
-        req = m.HeadDownloadRequest(
-            event=event,
-            start=parsed_start,
-        )
+        request = m.HeadDownloadRequest(event=event.root, start=start.root)
 
         try:
-            res = await service.headdownload(req)
+            response = await service.headdownload(request)
         except e.BadEventTypeError as ex:
             raise BadRequestException from ex
         except e.InstanceNotFoundError as ex:
@@ -257,24 +235,18 @@ class Controller(BaseController):
         except e.RecordNotFoundError as ex:
             raise NotFoundException from ex
 
-        content_type = res.type
-        size = res.size
-        tag = res.tag
-        modified = res.modified
-
-        headers = {
-            "Content-Type": content_type,
-            "Content-Length": str(size),
-            "ETag": tag,
-            "Last-Modified": httpstringify(modified),
-        }
         return Response(
             None,
-            headers=headers,
+            headers={
+                "Content-Type": response.type,
+                "Content-Length": str(response.size),
+                "ETag": response.tag,
+                "Last-Modified": httpstringify(response.modified),
+            },
         )
 
     @handlers.put(
-        "/{event:uuid}/{start:str}",
+        "/{event:str}/{start:str}",
         summary="Upload record",
         status_code=HTTP_204_NO_CONTENT,
         responses={
@@ -287,19 +259,19 @@ class Controller(BaseController):
         self,
         service: Service,
         event: Annotated[
-            m.UploadRequestEvent,
+            Serializable[m.UploadRequestEvent],
             Parameter(
                 description="Identifier of the event.",
             ),
         ],
         start: Annotated[
-            m.UploadRequestStart,
+            Serializable[m.UploadRequestStart],
             Parameter(
                 description="Start datetime of the event instance in event timezone.",
             ),
         ],
         content_type: Annotated[
-            m.UploadRequestType,
+            Jsonable[m.UploadRequestType],
             Parameter(
                 header="Content-Type",
                 description="Type of the record data.",
@@ -319,12 +291,10 @@ class Controller(BaseController):
 
                 yield chunk
 
-        parsed_start = Validator[m.UploadRequestStart].validate_object(start)
-
         req = m.UploadRequest(
-            event=event,
-            start=parsed_start,
-            type=content_type,
+            event=event.root,
+            start=start.root,
+            type=content_type.root,
             data=_stream(request),
         )
 
@@ -338,7 +308,7 @@ class Controller(BaseController):
         return Response(None)
 
     @handlers.delete(
-        "/{event:uuid}/{start:str}",
+        "/{event:str}/{start:str}",
         summary="Delete record",
         responses={
             HTTP_204_NO_CONTENT: ResponseSpec(
@@ -350,28 +320,23 @@ class Controller(BaseController):
         self,
         service: Service,
         event: Annotated[
-            m.DeleteRequestEvent,
+            Serializable[m.DeleteRequestEvent],
             Parameter(
                 description="Identifier of the event.",
             ),
         ],
         start: Annotated[
-            str,
+            Serializable[m.DeleteRequestStart],
             Parameter(
                 description="Start datetime of the event instance in event timezone.",
             ),
         ],
     ) -> Response[None]:
         """Delete a record."""
-        parsed_start = Validator[m.DeleteRequestStart].validate_object(start)
-
-        req = m.DeleteRequest(
-            event=event,
-            start=parsed_start,
-        )
+        request = m.DeleteRequest(event=event.root, start=start.root)
 
         try:
-            await service.delete(req)
+            await service.delete(request)
         except e.BadEventTypeError as ex:
             raise BadRequestException from ex
         except e.InstanceNotFoundError as ex:

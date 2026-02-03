@@ -1,15 +1,8 @@
 from collections.abc import Generator, Sequence
 from contextlib import contextmanager
-from datetime import UTC, timedelta
+from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
-from typing import TYPE_CHECKING, cast
 from uuid import UUID
-from zoneinfo import ZoneInfo
-
-from gecko.utils.time import NaiveDatetime, isoparse, isostringify
-
-if TYPE_CHECKING:
-    from httpx import Response
 
 from gecko.services.beaver import errors as be
 from gecko.services.beaver import models as bm
@@ -19,6 +12,7 @@ from gecko.services.emerald import models as em
 from gecko.services.emerald.service import EmeraldService
 from gecko.services.records import errors as e
 from gecko.services.records import models as m
+from gecko.utils.time import isoparse, isostringify
 
 
 class RecordsService:
@@ -33,72 +27,61 @@ class RecordsService:
         try:
             yield
         except be.ServiceError as ex:
-            raise e.BeaverError(str(ex)) from ex
+            raise e.BeaverError from ex
         except ee.ServiceError as ex:
-            raise e.EmeraldError(str(ex)) from ex
+            raise e.EmeraldError from ex
 
     @contextmanager
-    def _handle_not_found(self, event: UUID, start: NaiveDatetime) -> Generator[None]:
+    def _handle_not_found(self, event: UUID, start: datetime) -> Generator[None]:
         try:
             yield
         except ee.NotFoundError as ex:
             raise e.RecordNotFoundError(event, start) from ex
 
     async def _get_event(self, event: UUID) -> bm.Event | None:
-        req = bm.EventsGetRequest(
-            id=event,
-            include=None,
-        )
+        events_get_request = bm.EventsGetRequest(id=event)
 
         with self._handle_errors():
             try:
-                res = await self._beaver.events.mget(req)
-            except be.ServiceError as ex:
-                if hasattr(ex, "response"):
-                    response = cast("Response", ex.response)  # type: ignore[attr-defined]
-                    if response.status_code == HTTPStatus.NOT_FOUND:
-                        return None
+                events_get_response = await self._beaver.events.mget(events_get_request)
+            except be.ResponseError as ex:
+                if ex.response.status_code == HTTPStatus.NOT_FOUND:
+                    return None
 
                 raise
 
-        ev = res.event
+        if events_get_response.event.type != bm.EventType.live:
+            raise e.BadEventTypeError(events_get_response.event.type)
 
-        if ev.type != bm.EventType.live:
-            raise e.BadEventTypeError(ev.type)
-
-        return ev
+        return events_get_response.event
 
     async def _get_instance(
-        self, event: UUID, start: NaiveDatetime
+        self, event: UUID, start: datetime
     ) -> bm.EventInstance | None:
         mevent = await self._get_event(event)
 
         if mevent is None:
             return None
 
-        tz = ZoneInfo(mevent.timezone)
-        utcstart = start.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=tz)
-        utcstart = utcstart.astimezone(UTC).replace(tzinfo=None)
+        utcstart = (
+            start.replace(
+                hour=0, minute=0, second=0, microsecond=0, tzinfo=mevent.timezone
+            )
+            .astimezone(UTC)
+            .replace(tzinfo=None)
+        )
         utcend = utcstart + timedelta(days=1)
 
-        req = bm.ScheduleListRequest(
-            start=utcstart,
-            end=utcend,
-            limit=None,
-            offset=None,
-            where={
-                "id": str(mevent.id),
-            },
-            include=None,
-            order=None,
+        schedule_list_request = bm.ScheduleListRequest(
+            start=utcstart, end=utcend, where={"id": str(mevent.id)}
         )
 
         with self._handle_errors():
-            res = await self._beaver.schedule.list(req)
+            schedule_list_response = await self._beaver.schedule.list(
+                schedule_list_request
+            )
 
-        schedules = res.results.schedules
-
-        schedule = next(iter(schedules), None)
+        schedule = next(iter(schedule_list_response.results.schedules), None)
 
         if schedule is None:
             return None
@@ -114,10 +97,10 @@ class RecordsService:
     def _make_prefix(self, event: UUID) -> str:
         return f"{event}/"
 
-    def _make_name(self, start: NaiveDatetime) -> str:
+    def _make_name(self, start: datetime) -> str:
         return isostringify(start)
 
-    def _make_key(self, event: UUID, start: NaiveDatetime) -> str:
+    def _make_key(self, event: UUID, start: datetime) -> str:
         prefix = self._make_prefix(event)
         name = self._make_name(start)
         return f"{prefix}{name}"
@@ -125,10 +108,10 @@ class RecordsService:
     def _parse_prefix(self, prefix: str) -> UUID:
         return UUID(prefix[:-1])
 
-    def _parse_name(self, name: str) -> NaiveDatetime:
+    def _parse_name(self, name: str) -> datetime:
         return isoparse(name)
 
-    def _parse_key(self, key: str) -> tuple[UUID, NaiveDatetime]:
+    def _parse_key(self, key: str) -> tuple[UUID, datetime]:
         split = key.find("/")
         prefix, name = key[: split + 1], key[split + 1 :]
         event = self._parse_prefix(prefix)
@@ -136,26 +119,18 @@ class RecordsService:
         return event, start
 
     async def _list_get_objects(self, prefix: str) -> Sequence[em.Object]:
-        req = em.ListRequest(
-            prefix=prefix,
-            recursive=False,
-        )
+        list_request = em.ListRequest(prefix=prefix, recursive=False)
 
         with self._handle_errors():
-            res = await self._emerald.list(req)
-            return [obj async for obj in res.objects]
+            list_response = await self._emerald.list(list_request)
+            return [obj async for obj in list_response.objects]
 
     def _list_map_objects(self, objects: Sequence[em.Object]) -> Sequence[m.Record]:
         records = []
 
         for obj in objects:
             event, start = self._parse_key(obj.name)
-
-            record = m.Record(
-                event=event,
-                start=start,
-            )
-
+            record = m.Record(event=event, start=start)
             records.append(record)
 
         return records
@@ -175,8 +150,8 @@ class RecordsService:
     def _list_filter_records(
         self,
         records: Sequence[m.Record],
-        after: NaiveDatetime | None,
-        before: NaiveDatetime | None,
+        after: datetime | None,
+        before: datetime | None,
     ) -> Sequence[m.Record]:
         if after is not None:
             records = [record for record in records if record.start > after]
@@ -187,7 +162,10 @@ class RecordsService:
         return records
 
     def _list_pick_records(
-        self, records: Sequence[m.Record], limit: int | None, offset: int | None
+        self,
+        records: Sequence[m.Record],
+        limit: int | None,
+        offset: int | None,
     ) -> Sequence[m.Record]:
         if offset is not None:
             records = records[offset:]
@@ -199,93 +177,71 @@ class RecordsService:
 
     async def list(self, request: m.ListRequest) -> m.ListResponse:
         """List records."""
-        event = request.event
-        after = request.after
-        before = request.before
-        limit = request.limit
-        offset = request.offset
-        order = request.order
+        if await self._get_event(request.event) is None:
+            raise e.EventNotFoundError(request.event)
 
-        if await self._get_event(event) is None:
-            raise e.EventNotFoundError(event)
-
-        prefix = self._make_prefix(event)
+        prefix = self._make_prefix(request.event)
 
         objects = await self._list_get_objects(prefix)
         records = self._list_map_objects(objects)
-        records = self._list_filter_records(records, after, before)
-        records = self._list_sort_records(records, order)
+        records = self._list_filter_records(records, request.after, request.before)
+        records = self._list_sort_records(records, request.order)
 
         count = len(records)
 
-        records = self._list_pick_records(records, limit, offset)
+        records = self._list_pick_records(records, request.limit, request.offset)
 
         return m.ListResponse(
             count=count,
-            limit=limit,
-            offset=offset,
+            limit=request.limit,
+            offset=request.offset,
             records=records,
         )
 
     async def download(self, request: m.DownloadRequest) -> m.DownloadResponse:
         """Download a record."""
-        event = request.event
-        start = request.start
+        if await self._get_instance(request.event, request.start) is None:
+            raise e.InstanceNotFoundError(request.event, request.start)
 
-        if await self._get_instance(event, start) is None:
-            raise e.InstanceNotFoundError(event, start)
+        key = self._make_key(request.event, request.start)
 
-        key = self._make_key(event, start)
+        download_request = em.DownloadRequest(name=key)
 
-        req = em.DownloadRequest(
-            name=key,
-        )
+        with (
+            self._handle_errors(),
+            self._handle_not_found(request.event, request.start),
+        ):
+            download_response = await self._emerald.download(download_request)
 
-        with self._handle_errors(), self._handle_not_found(event, start):
-            res = await self._emerald.download(req)
-
-        content = res.content
-
-        return m.DownloadResponse(
-            content=content,
-        )
+        return m.DownloadResponse(content=download_response.content)
 
     async def upload(self, request: m.UploadRequest) -> m.UploadResponse:
         """Upload a record."""
-        event = request.event
-        start = request.start
-        content = request.content
+        if await self._get_instance(request.event, request.start) is None:
+            raise e.InstanceNotFoundError(request.event, request.start)
 
-        if await self._get_instance(event, start) is None:
-            raise e.InstanceNotFoundError(event, start)
+        key = self._make_key(request.event, request.start)
 
-        key = self._make_key(event, start)
-
-        req = em.UploadRequest(
-            name=key,
-            content=content,
-        )
+        upload_request = em.UploadRequest(name=key, content=request.content)
 
         with self._handle_errors():
-            await self._emerald.upload(req)
+            await self._emerald.upload(upload_request)
 
         return m.UploadResponse()
 
     async def delete(self, request: m.DeleteRequest) -> m.DeleteResponse:
         """Delete a record."""
-        event = request.event
-        start = request.start
+        if await self._get_instance(request.event, request.start) is None:
+            raise e.InstanceNotFoundError(request.event, request.start)
 
-        if await self._get_instance(event, start) is None:
-            raise e.InstanceNotFoundError(event, start)
+        key = self._make_key(request.event, request.start)
 
-        key = self._make_key(event, start)
+        delete_request = em.DeleteRequest(name=key)
 
-        req = em.DeleteRequest(
-            name=key,
-        )
-
-        with self._handle_errors(), self._handle_not_found(event, start):
-            await self._emerald.delete(req)
+        with (
+            self._handle_errors(),
+            self._handle_not_found(request.event, request.start),
+        ):
+            await self._emerald.delete(delete_request)
 
         return m.DeleteResponse()
