@@ -1,5 +1,6 @@
 from collections.abc import AsyncIterator, Sequence
 from datetime import datetime
+from typing import Self
 from uuid import UUID
 
 from gecko.models.base import SerializableModel, datamodel
@@ -16,10 +17,10 @@ class Record(SerializableModel):
     start: NaiveDatetime
     """Start datetime of the event instance in event timezone."""
 
-    @staticmethod
-    def map(record: rm.Record) -> "Record":
+    @classmethod
+    def map(cls, record: rm.Record) -> Self:
         """Map to internal representation."""
-        return Record(event=record.event, start=record.start)
+        return cls(event=record.event, start=record.start)
 
 
 class RecordList(SerializableModel):
