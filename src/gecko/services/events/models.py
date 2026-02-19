@@ -1,12 +1,17 @@
 from collections.abc import AsyncIterator
+from collections.abc import Set as AbstractSet
 
 from gecko.models.base import datamodel
-from gecko.models.events.event import Event
+from gecko.models.events.enums import EventType
+from gecko.models.events.types import Event
 
 
 @datamodel
 class SubscribeRequest:
     """Request to subscribe."""
+
+    types: AbstractSet[EventType] | None = None
+    """Types of events to subscribe to."""
 
 
 @datamodel
