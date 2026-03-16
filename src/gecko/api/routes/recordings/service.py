@@ -1,18 +1,18 @@
 from collections.abc import Generator
 from contextlib import contextmanager
 
-from gecko.api.routes.records import errors as e
-from gecko.api.routes.records import models as m
-from gecko.services.records import errors as re
-from gecko.services.records import models as rm
-from gecko.services.records.service import RecordsService
+from gecko.api.routes.recordings import errors as e
+from gecko.api.routes.recordings import models as m
+from gecko.services.recordings import errors as re
+from gecko.services.recordings import models as rm
+from gecko.services.recordings.service import RecordingsService
 
 
 class Service:
-    """Service for the records endpoint."""
+    """Service for the recordings endpoint."""
 
-    def __init__(self, records: RecordsService) -> None:
-        self._records = records
+    def __init__(self, recordings: RecordingsService) -> None:
+        self._recordings = recordings
 
     @contextmanager
     def _handle_errors(self) -> Generator[None]:
@@ -24,8 +24,8 @@ class Service:
             raise e.BadEventTypeError from ex
         except re.InstanceNotFoundError as ex:
             raise e.InstanceNotFoundError from ex
-        except re.RecordNotFoundError as ex:
-            raise e.RecordNotFoundError from ex
+        except re.RecordingNotFoundError as ex:
+            raise e.RecordingNotFoundError from ex
         except re.BeaverError as ex:
             raise e.BeaverError from ex
         except re.EmeraldError as ex:
@@ -34,7 +34,7 @@ class Service:
             raise e.ServiceError from ex
 
     async def list(self, request: m.ListRequest) -> m.ListResponse:
-        """List records."""
+        """List recordings."""
         list_request = rm.ListRequest(
             event=request.event,
             after=request.after,
@@ -45,23 +45,25 @@ class Service:
         )
 
         with self._handle_errors():
-            list_response = await self._records.list(list_request)
+            list_response = await self._recordings.list(list_request)
 
         return m.ListResponse(
-            results=m.RecordList(
+            results=m.RecordingList(
                 count=list_response.count,
                 limit=request.limit,
                 offset=request.offset,
-                records=[m.Record.map(record) for record in list_response.records],
+                recordings=[
+                    m.Recording.map(recording) for recording in list_response.recordings
+                ],
             )
         )
 
     async def download(self, request: m.DownloadRequest) -> m.DownloadResponse:
-        """Download a record."""
+        """Download a recording."""
         download_request = rm.DownloadRequest(event=request.event, start=request.start)
 
         with self._handle_errors():
-            download_response = await self._records.download(download_request)
+            download_response = await self._recordings.download(download_request)
 
         return m.DownloadResponse(
             type=download_response.content.type,
@@ -74,11 +76,11 @@ class Service:
     async def headdownload(
         self, request: m.HeadDownloadRequest
     ) -> m.HeadDownloadResponse:
-        """Download record headers."""
+        """Download recording headers."""
         download_request = rm.DownloadRequest(event=request.event, start=request.start)
 
         with self._handle_errors():
-            download_response = await self._records.download(download_request)
+            download_response = await self._recordings.download(download_request)
 
         return m.HeadDownloadResponse(
             type=download_response.content.type,
@@ -88,7 +90,7 @@ class Service:
         )
 
     async def upload(self, request: m.UploadRequest) -> m.UploadResponse:
-        """Upload a record."""
+        """Upload a recording."""
         upload_request = rm.UploadRequest(
             event=request.event,
             start=request.start,
@@ -96,15 +98,15 @@ class Service:
         )
 
         with self._handle_errors():
-            await self._records.upload(upload_request)
+            await self._recordings.upload(upload_request)
 
         return m.UploadResponse()
 
     async def delete(self, request: m.DeleteRequest) -> m.DeleteResponse:
-        """Delete a record."""
+        """Delete a recording."""
         delete_request = rm.DeleteRequest(event=request.event, start=request.start)
 
         with self._handle_errors():
-            await self._records.delete(delete_request)
+            await self._recordings.delete(delete_request)
 
         return m.DeleteResponse()

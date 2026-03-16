@@ -14,8 +14,8 @@ class InstanceNotFoundError(ServiceError):
     """Raised when instance is not found."""
 
 
-class RecordNotFoundError(ServiceError):
-    """Raised when record is not found."""
+class RecordingNotFoundError(ServiceError):
+    """Raised when recording is not found."""
 
 
 class BeaverError(ServiceError):

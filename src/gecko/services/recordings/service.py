@@ -10,13 +10,13 @@ from gecko.services.beaver.service import BeaverService
 from gecko.services.emerald import errors as ee
 from gecko.services.emerald import models as em
 from gecko.services.emerald.service import EmeraldService
-from gecko.services.records import errors as e
-from gecko.services.records import models as m
+from gecko.services.recordings import errors as e
+from gecko.services.recordings import models as m
 from gecko.utils.time import isoparse, isostringify
 
 
-class RecordsService:
-    """Service to manage records."""
+class RecordingsService:
+    """Service to manage recordings."""
 
     def __init__(self, beaver: BeaverService, emerald: EmeraldService) -> None:
         self._beaver = beaver
@@ -36,7 +36,7 @@ class RecordsService:
         try:
             yield
         except ee.NotFoundError as ex:
-            raise e.RecordNotFoundError(event, start) from ex
+            raise e.RecordingNotFoundError(event, start) from ex
 
     async def _get_event(self, event: UUID) -> bm.Event | None:
         events_get_request = bm.EventsGetRequest(id=event)
@@ -127,81 +127,89 @@ class RecordsService:
             list_response = await self._emerald.list(list_request)
             return [obj async for obj in list_response.objects]
 
-    def _list_map_objects(self, objects: Sequence[em.Object]) -> Sequence[m.Record]:
-        records = []
+    def _list_map_objects(self, objects: Sequence[em.Object]) -> Sequence[m.Recording]:
+        recordings = []
 
         for obj in objects:
             event, start = self._parse_key(obj.name)
-            record = m.Record(event=event, start=start)
-            records.append(record)
+            recording = m.Recording(event=event, start=start)
+            recordings.append(recording)
 
-        return records
+        return recordings
 
-    def _list_sort_records(
-        self, records: Sequence[m.Record], order: m.ListOrder | None
-    ) -> Sequence[m.Record]:
+    def _list_sort_recordings(
+        self, recordings: Sequence[m.Recording], order: m.ListOrder | None
+    ) -> Sequence[m.Recording]:
         if order is None:
-            return records
+            return recordings
 
         return sorted(
-            records,
-            key=lambda record: record.start,
+            recordings,
+            key=lambda recording: recording.start,
             reverse=order == m.ListOrder.DESCENDING,
         )
 
-    def _list_filter_records(
+    def _list_filter_recordings(
         self,
-        records: Sequence[m.Record],
+        recordings: Sequence[m.Recording],
         after: datetime | None,
         before: datetime | None,
-    ) -> Sequence[m.Record]:
+    ) -> Sequence[m.Recording]:
         if after is not None:
-            records = [record for record in records if record.start > after]
+            recordings = [
+                recording for recording in recordings if recording.start > after
+            ]
 
         if before is not None:
-            records = [record for record in records if record.start < before]
+            recordings = [
+                recording for recording in recordings if recording.start < before
+            ]
 
-        return records
+        return recordings
 
-    def _list_pick_records(
+    def _list_pick_recordings(
         self,
-        records: Sequence[m.Record],
+        recordings: Sequence[m.Recording],
         limit: int | None,
         offset: int | None,
-    ) -> Sequence[m.Record]:
+    ) -> Sequence[m.Recording]:
         if offset is not None:
-            records = records[offset:]
+            recordings = recordings[offset:]
 
         if limit is not None:
-            records = records[:limit]
+            recordings = recordings[:limit]
 
-        return records
+        return recordings
 
     async def list(self, request: m.ListRequest) -> m.ListResponse:
-        """List records."""
+        """List recordings."""
         if await self._get_event(request.event) is None:
             raise e.EventNotFoundError(request.event)
 
         prefix = self._make_prefix(request.event)
 
         objects = await self._list_get_objects(prefix)
-        records = self._list_map_objects(objects)
-        records = self._list_filter_records(records, request.after, request.before)
-        records = self._list_sort_records(records, request.order)
+        recordings = self._list_map_objects(objects)
+        recordings = self._list_filter_recordings(
+            recordings, request.after, request.before
+        )
+        recordings = self._list_sort_recordings(recordings, request.order)
 
-        count = len(records)
+        count = len(recordings)
 
-        records = self._list_pick_records(records, request.limit, request.offset)
+        recordings = self._list_pick_recordings(
+            recordings, request.limit, request.offset
+        )
 
         return m.ListResponse(
             count=count,
             limit=request.limit,
             offset=request.offset,
-            records=records,
+            recordings=recordings,
         )
 
     async def download(self, request: m.DownloadRequest) -> m.DownloadResponse:
-        """Download a record."""
+        """Download a recording."""
         if await self._get_instance(request.event, request.start) is None:
             raise e.InstanceNotFoundError(request.event, request.start)
 
@@ -218,7 +226,7 @@ class RecordsService:
         return m.DownloadResponse(content=download_response.content)
 
     async def upload(self, request: m.UploadRequest) -> m.UploadResponse:
-        """Upload a record."""
+        """Upload a recording."""
         if await self._get_instance(request.event, request.start) is None:
             raise e.InstanceNotFoundError(request.event, request.start)
 
@@ -232,7 +240,7 @@ class RecordsService:
         return m.UploadResponse()
 
     async def delete(self, request: m.DeleteRequest) -> m.DeleteResponse:
-        """Delete a record."""
+        """Delete a recording."""
         if await self._get_instance(request.event, request.start) is None:
             raise e.InstanceNotFoundError(request.event, request.start)
 

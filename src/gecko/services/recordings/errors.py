@@ -31,12 +31,12 @@ class InstanceNotFoundError(ServiceError):
         )
 
 
-class RecordNotFoundError(ServiceError):
-    """Raised when record is not found."""
+class RecordingNotFoundError(ServiceError):
+    """Raised when recording is not found."""
 
     def __init__(self, event_id: UUID, start: datetime) -> None:
         super().__init__(
-            f"Record not found for instance of live event {event_id} starting at {isostringify(start)}."
+            f"Recording not found for instance of live event {event_id} starting at {isostringify(start)}."
         )
 
 
