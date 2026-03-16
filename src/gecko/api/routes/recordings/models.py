@@ -4,12 +4,12 @@ from typing import Self
 from uuid import UUID
 
 from gecko.models.base import SerializableModel, datamodel
-from gecko.services.records import models as rm
+from gecko.services.recordings import models as rm
 from gecko.utils.time import NaiveDatetime
 
 
-class Record(SerializableModel):
-    """Record data."""
+class Recording(SerializableModel):
+    """Recording data."""
 
     event: UUID
     """Identifier of the event."""
@@ -18,25 +18,25 @@ class Record(SerializableModel):
     """Start datetime of the event instance in event timezone."""
 
     @classmethod
-    def map(cls, record: rm.Record) -> Self:
+    def map(cls, recording: rm.Recording) -> Self:
         """Map to internal representation."""
-        return cls(event=record.event, start=record.start)
+        return cls(event=recording.event, start=recording.start)
 
 
-class RecordList(SerializableModel):
-    """List of records."""
+class RecordingList(SerializableModel):
+    """List of recordings."""
 
     count: int
-    """Total number of records that match the request."""
+    """Total number of recordings that match the request."""
 
     limit: int | None
-    """Maximum number of returned records."""
+    """Maximum number of returned recordings."""
 
     offset: int | None
-    """Number of skipped records."""
+    """Number of skipped recordings."""
 
-    records: Sequence[Record]
-    """List of records."""
+    recordings: Sequence[Recording]
+    """List of recordings."""
 
 
 type ListRequestEvent = UUID
@@ -51,7 +51,7 @@ type ListRequestOffset = int | None
 
 type ListRequestOrder = rm.ListOrder | None
 
-type ListResponseResults = RecordList
+type ListResponseResults = RecordingList
 
 type DownloadRequestEvent = UUID
 
@@ -94,22 +94,22 @@ type DeleteRequestStart = NaiveDatetime
 
 @datamodel
 class ListRequest:
-    """Request to list records."""
+    """Request to list recordings."""
 
     event: ListRequestEvent
-    """Identifier of the event to list records for."""
+    """Identifier of the event to list recordings for."""
 
     after: ListRequestAfter
-    """Only list records after this datetime (in event timezone)."""
+    """Only list recordings after this datetime (in event timezone)."""
 
     before: ListRequestBefore
-    """Only list records before this datetime (in event timezone)."""
+    """Only list recordings before this datetime (in event timezone)."""
 
     limit: ListRequestLimit
-    """Maximum number of records to return."""
+    """Maximum number of recordings to return."""
 
     offset: ListRequestOffset
-    """Number of records to skip."""
+    """Number of recordings to skip."""
 
     order: ListRequestOrder
     """Order to apply to the results."""
@@ -117,15 +117,15 @@ class ListRequest:
 
 @datamodel
 class ListResponse:
-    """Response for listing records."""
+    """Response for listing recordings."""
 
     results: ListResponseResults
-    """List of records."""
+    """List of recordings."""
 
 
 @datamodel
 class DownloadRequest:
-    """Request to download a record."""
+    """Request to download a recording."""
 
     event: DownloadRequestEvent
     """Identifier of the event."""
@@ -136,27 +136,27 @@ class DownloadRequest:
 
 @datamodel
 class DownloadResponse:
-    """Response for downloading a record."""
+    """Response for downloading a recording."""
 
     type: DownloadResponseType
-    """Type of the record data."""
+    """Type of the recording data."""
 
     size: DownloadResponseSize
-    """Size of the record in bytes."""
+    """Size of the recording in bytes."""
 
     tag: DownloadResponseTag
-    """ETag of the record data."""
+    """ETag of the recording data."""
 
     modified: DownloadResponseModified
-    """Datetime when the record was last modified."""
+    """Datetime when the recording was last modified."""
 
     data: DownloadResponseData
-    """Data of the record."""
+    """Data of the recording."""
 
 
 @datamodel
 class HeadDownloadRequest:
-    """Request to download record headers."""
+    """Request to download recording headers."""
 
     event: HeadDownloadRequestEvent
     """Identifier of the event."""
@@ -167,24 +167,24 @@ class HeadDownloadRequest:
 
 @datamodel
 class HeadDownloadResponse:
-    """Response for downloading record headers."""
+    """Response for downloading recording headers."""
 
     type: HeadDownloadResponseType
-    """Type of the record data."""
+    """Type of the recording data."""
 
     size: HeadDownloadResponseSize
-    """Size of the record in bytes."""
+    """Size of the recording in bytes."""
 
     tag: HeadDownloadResponseTag
-    """ETag of the record data."""
+    """ETag of the recording data."""
 
     modified: HeadDownloadResponseModified
-    """Datetime when the record was last modified."""
+    """Datetime when the recording was last modified."""
 
 
 @datamodel
 class UploadRequest:
-    """Request to upload a record."""
+    """Request to upload a recording."""
 
     event: UploadRequestEvent
     """Identifier of the event."""
@@ -193,20 +193,20 @@ class UploadRequest:
     """Start datetime of the event instance in event timezone."""
 
     type: UploadRequestType
-    """Type of the record data."""
+    """Type of the recording data."""
 
     data: UploadRequestData
-    """Data of the record."""
+    """Data of the recording."""
 
 
 @datamodel
 class UploadResponse:
-    """Response for uploading a record."""
+    """Response for uploading a recording."""
 
 
 @datamodel
 class DeleteRequest:
-    """Request to delete a record."""
+    """Request to delete a recording."""
 
     event: DeleteRequestEvent
     """Identifier of the event."""
@@ -217,4 +217,4 @@ class DeleteRequest:
 
 @datamodel
 class DeleteResponse:
-    """Response for deleting a record."""
+    """Response for deleting a recording."""

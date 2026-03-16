@@ -3,19 +3,19 @@ slug: /usage
 title: Usage
 ---
 
-## Listing records
+## Listing recordings
 
-You can list records using the `/records/:event` endpoint.
-For example, you can use `curl` to list all records for an event:
+You can list recordings using the `/recordings/:event` endpoint.
+For example, you can use `curl` to list all recordings for an event:
 
 ```sh
-curl --request GET http://localhost:10700/records/0f339cb0-7ab4-43fe-852d-75708232f76c
+curl --request GET http://localhost:10700/recordings/0f339cb0-7ab4-43fe-852d-75708232f76c
 ```
 
-## Uploading and downloading records
+## Uploading and downloading recordings
 
-You can upload and download records using the `/records/:event/:start` endpoint.
-To upload a record, you can use `curl`
+You can upload and download recordings using the `/recordings/:event/:start` endpoint.
+To upload a recording, you can use `curl`
 to send a `PUT` request streaming the content from a file:
 
 ```sh
@@ -23,24 +23,24 @@ curl \
     --request PUT \
     --header "Content-Type: audio/ogg" \
     --header "Transfer-Encoding: chunked" \
-    --upload-file record.ogg \
-    http://localhost:10700/records/0f339cb0-7ab4-43fe-852d-75708232f76c/2024-01-01T00:00:00
+    --upload-file recording.ogg \
+    http://localhost:10700/recordings/0f339cb0-7ab4-43fe-852d-75708232f76c/2024-01-01T00:00:00
 ```
 
-To download a record, you can use `curl`
+To download a recording, you can use `curl`
 to send a `GET` request and save the response body to a file:
 
 ```sh
-curl --request GET --output record.ogg http://localhost:10700/record/0f339cb0-7ab4-43fe-852d-75708232f76c/2024-01-01T00:00:00
+curl --request GET --output recording.ogg http://localhost:10700/recordings/0f339cb0-7ab4-43fe-852d-75708232f76c/2024-01-01T00:00:00
 ```
 
-## Deleting records
+## Deleting recordings
 
-You can delete records using the `/record/:event/:start` endpoint.
-For example, you can use `curl` to delete a record:
+You can delete recordings using the `/recordings/:event/:start` endpoint.
+For example, you can use `curl` to delete a recording:
 
 ```sh
-curl --request DELETE http://localhost:10700/records/0f339cb0-7ab4-43fe-852d-75708232f76c/2024-01-01T00:00:00
+curl --request DELETE http://localhost:10700/recordings/0f339cb0-7ab4-43fe-852d-75708232f76c/2024-01-01T00:00:00
 ```
 
 ## Ping

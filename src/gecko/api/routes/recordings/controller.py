@@ -21,18 +21,18 @@ from litestar.response import Response, Stream
 from litestar.status_codes import HTTP_200_OK, HTTP_204_NO_CONTENT
 
 from gecko.api.exceptions import BadRequestException, NotFoundException
-from gecko.api.routes.records import errors as e
-from gecko.api.routes.records import models as m
-from gecko.api.routes.records.service import Service
+from gecko.api.routes.recordings import errors as e
+from gecko.api.routes.recordings import models as m
+from gecko.api.routes.recordings.service import Service
 from gecko.models.base import Jsonable, Serializable
-from gecko.services.records.service import RecordsService
+from gecko.services.recordings.service import RecordingsService
 from gecko.state import State
 from gecko.utils.time import httpstringify
 
 
 @dataclass
 class DownloadOperation(Operation):
-    """OpenAPI Operation for downloading a record."""
+    """OpenAPI Operation for downloading a recording."""
 
     def __post_init__(self) -> None:
         if (
@@ -51,7 +51,7 @@ class DownloadOperation(Operation):
 
 @dataclass
 class UploadOperation(Operation):
-    """OpenAPI Operation for uploading a record."""
+    """OpenAPI Operation for uploading a recording."""
 
     def __post_init__(self) -> None:
         self.request_body = RequestBody(
@@ -69,7 +69,7 @@ class DependenciesBuilder:
 
     async def _build_service(self, state: State) -> Service:
         return Service(
-            records=RecordsService(beaver=state.beaver, emerald=state.emerald)
+            recordings=RecordingsService(beaver=state.beaver, emerald=state.emerald)
         )
 
     def build(self) -> Mapping[str, Provide]:
@@ -80,13 +80,13 @@ class DependenciesBuilder:
 
 
 class Controller(BaseController):
-    """Controller for the records endpoint."""
+    """Controller for the recordings endpoint."""
 
     dependencies = DependenciesBuilder().build()
 
     @handlers.get(
         "/{event:str}",
-        summary="List records",
+        summary="List recordings",
         raises=[BadRequestException, NotFoundException],
     )
     async def list(  # noqa: PLR0913
@@ -95,31 +95,31 @@ class Controller(BaseController):
         event: Annotated[
             Serializable[m.ListRequestEvent],
             Parameter(
-                description="Identifier of the event to list records for.",
+                description="Identifier of the event to list recordings for.",
             ),
         ],
         after: Annotated[
             Jsonable[m.ListRequestAfter] | None,
             Parameter(
-                description="Only list records after this datetime (in event timezone).",
+                description="Only list recordings after this datetime (in event timezone).",
             ),
         ] = None,
         before: Annotated[
             Jsonable[m.ListRequestBefore] | None,
             Parameter(
-                description="Only list records before this datetime (in event timezone).",
+                description="Only list recordings before this datetime (in event timezone).",
             ),
         ] = None,
         limit: Annotated[
             Jsonable[m.ListRequestLimit] | None,
             Parameter(
-                description="Maximum number of records to return. Default is 10.",
+                description="Maximum number of recordings to return. Default is 10.",
             ),
         ] = None,
         offset: Annotated[
             Jsonable[m.ListRequestOffset] | None,
             Parameter(
-                description="Number of records to skip.",
+                description="Number of recordings to skip.",
             ),
         ] = None,
         order: Annotated[
@@ -129,7 +129,7 @@ class Controller(BaseController):
             ),
         ] = None,
     ) -> Response[Serializable[m.ListResponseResults]]:
-        """List records."""
+        """List recordings."""
         request = m.ListRequest(
             event=event.root,
             after=after.root if after else None,
@@ -150,7 +150,7 @@ class Controller(BaseController):
 
     @handlers.get(
         "/{event:str}/{start:str}",
-        summary="Download record",
+        summary="Download recording",
         status_code=HTTP_200_OK,
         response_headers=[
             ResponseHeader(
@@ -194,7 +194,7 @@ class Controller(BaseController):
             ),
         ],
     ) -> Stream:
-        """Download a record."""
+        """Download a recording."""
         request = m.DownloadRequest(event=event.root, start=start.root)
 
         try:
@@ -203,7 +203,7 @@ class Controller(BaseController):
             raise BadRequestException from ex
         except e.InstanceNotFoundError as ex:
             raise NotFoundException from ex
-        except e.RecordNotFoundError as ex:
+        except e.RecordingNotFoundError as ex:
             raise NotFoundException from ex
 
         return Stream(
@@ -218,7 +218,7 @@ class Controller(BaseController):
 
     @handlers.head(
         "/{event:str}/{start:str}",
-        summary="Download record headers",
+        summary="Download recording headers",
         response_description="Request fulfilled, headers follow",
         response_headers=[
             ResponseHeader(
@@ -260,7 +260,7 @@ class Controller(BaseController):
             ),
         ],
     ) -> None:
-        """Download record headers."""
+        """Download recording headers."""
         request = m.HeadDownloadRequest(event=event.root, start=start.root)
 
         try:
@@ -269,7 +269,7 @@ class Controller(BaseController):
             raise BadRequestException from ex
         except e.InstanceNotFoundError as ex:
             raise NotFoundException from ex
-        except e.RecordNotFoundError as ex:
+        except e.RecordingNotFoundError as ex:
             raise NotFoundException from ex
 
         return cast(
@@ -287,7 +287,7 @@ class Controller(BaseController):
 
     @handlers.put(
         "/{event:str}/{start:str}",
-        summary="Upload record",
+        summary="Upload recording",
         status_code=HTTP_204_NO_CONTENT,
         raises=[BadRequestException, NotFoundException],
         operation_class=UploadOperation,
@@ -311,12 +311,12 @@ class Controller(BaseController):
             Jsonable[m.UploadRequestType],
             Parameter(
                 header="Content-Type",
-                description="Type of the record data.",
+                description="Type of the recording data.",
             ),
         ],
         request: Request,
     ) -> None:
-        """Upload a record."""
+        """Upload a recording."""
 
         async def _stream(request: Request) -> AsyncGenerator[bytes]:
             stream = request.stream()
@@ -344,7 +344,7 @@ class Controller(BaseController):
 
     @handlers.delete(
         "/{event:str}/{start:str}",
-        summary="Delete record",
+        summary="Delete recording",
         raises=[BadRequestException, NotFoundException],
     )
     async def delete(
@@ -363,7 +363,7 @@ class Controller(BaseController):
             ),
         ],
     ) -> None:
-        """Delete a record."""
+        """Delete a recording."""
         request = m.DeleteRequest(event=event.root, start=start.root)
 
         try:
@@ -372,5 +372,5 @@ class Controller(BaseController):
             raise BadRequestException from ex
         except e.InstanceNotFoundError as ex:
             raise NotFoundException from ex
-        except e.RecordNotFoundError as ex:
+        except e.RecordingNotFoundError as ex:
             raise NotFoundException from ex

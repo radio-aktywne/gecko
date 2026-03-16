@@ -12,15 +12,15 @@ UploadContent = em.UploadContent
 
 
 class ListOrder(StrEnum):
-    """Order to list records."""
+    """Order to list recordings."""
 
     ASCENDING = "asc"
     DESCENDING = "desc"
 
 
 @datamodel
-class Record:
-    """Record data."""
+class Recording:
+    """Recording data."""
 
     event: UUID
     """Identifier of the event."""
@@ -31,22 +31,22 @@ class Record:
 
 @datamodel
 class ListRequest:
-    """Request to list records."""
+    """Request to list recordings."""
 
     event: UUID
-    """Identifier of the event to list records for."""
+    """Identifier of the event to list recordings for."""
 
     after: datetime | None
-    """Only list records after this datetime (in event timezone)."""
+    """Only list recordings after this datetime (in event timezone)."""
 
     before: datetime | None
-    """Only list records before this datetime (in event timezone)."""
+    """Only list recordings before this datetime (in event timezone)."""
 
     limit: int | None
-    """Maximum number of records to return."""
+    """Maximum number of recordings to return."""
 
     offset: int | None
-    """Number of records to skip."""
+    """Number of recordings to skip."""
 
     order: ListOrder | None
     """Order to apply to the results."""
@@ -54,24 +54,24 @@ class ListRequest:
 
 @datamodel
 class ListResponse:
-    """Response for listing records."""
+    """Response for listing recordings."""
 
     count: int
-    """Total number of records that match the request."""
+    """Total number of recordings that match the request."""
 
     limit: int | None
-    """Maximum number of returned records."""
+    """Maximum number of returned recordings."""
 
     offset: int | None
-    """Number of skipped records."""
+    """Number of skipped recordings."""
 
-    records: Sequence[Record]
-    """List of records."""
+    recordings: Sequence[Recording]
+    """List of recordings."""
 
 
 @datamodel
 class DownloadRequest:
-    """Request to download a record."""
+    """Request to download a recording."""
 
     event: UUID
     """Identifier of the event."""
@@ -82,15 +82,15 @@ class DownloadRequest:
 
 @datamodel
 class DownloadResponse:
-    """Response for downloading a record."""
+    """Response for downloading a recording."""
 
     content: DownloadContent
-    """Content of the record."""
+    """Content of the recording."""
 
 
 @datamodel
 class UploadRequest:
-    """Request to upload a record."""
+    """Request to upload a recording."""
 
     event: UUID
     """Identifier of the event."""
@@ -99,17 +99,17 @@ class UploadRequest:
     """Start datetime of the event instance in event timezone."""
 
     content: UploadContent
-    """Content of the record."""
+    """Content of the recording."""
 
 
 @datamodel
 class UploadResponse:
-    """Response for uploading a record."""
+    """Response for uploading a recording."""
 
 
 @datamodel
 class DeleteRequest:
-    """Request to delete a record."""
+    """Request to delete a recording."""
 
     event: UUID
     """Identifier of the event."""
@@ -120,4 +120,4 @@ class DeleteRequest:
 
 @datamodel
 class DeleteResponse:
-    """Response for deleting a record."""
+    """Response for deleting a recording."""
