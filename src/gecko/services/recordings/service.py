@@ -157,7 +157,7 @@ class RecordingsService:
     ) -> Sequence[m.Recording]:
         if after is not None:
             recordings = [
-                recording for recording in recordings if recording.start > after
+                recording for recording in recordings if recording.start >= after
             ]
 
         if before is not None:
