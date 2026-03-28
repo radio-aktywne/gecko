@@ -100,10 +100,10 @@ class ListRequest:
     """Identifier of the event to list recordings for."""
 
     after: ListRequestAfter
-    """Only list recordings after this datetime (inclusive) (in event timezone)."""
+    """Only list recordings after this datetime (in event timezone, inclusive)."""
 
     before: ListRequestBefore
-    """Only list recordings before this datetime (exclusive) (in event timezone)."""
+    """Only list recordings before this datetime (in event timezone, exclusive)."""
 
     limit: ListRequestLimit
     """Maximum number of recordings to return."""

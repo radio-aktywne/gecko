@@ -101,13 +101,13 @@ class Controller(BaseController):
         after: Annotated[
             Jsonable[m.ListRequestAfter] | None,
             Parameter(
-                description="Only list recordings after this datetime (inclusive) (in event timezone).",
+                description="Only list recordings after this datetime (in event timezone, inclusive).",
             ),
         ] = None,
         before: Annotated[
             Jsonable[m.ListRequestBefore] | None,
             Parameter(
-                description="Only list recordings before this datetime (exclusive) (in event timezone).",
+                description="Only list recordings before this datetime (in event timezone, exclusive).",
             ),
         ] = None,
         limit: Annotated[
