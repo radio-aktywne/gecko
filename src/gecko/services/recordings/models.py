@@ -37,10 +37,10 @@ class ListRequest:
     """Identifier of the event to list recordings for."""
 
     after: datetime | None
-    """Only list recordings after this datetime (in event timezone)."""
+    """Only list recordings after or at this datetime (in event timezone)."""
 
     before: datetime | None
-    """Only list recordings before this datetime (in event timezone)."""
+    """Only list recordings strictly before this datetime (in event timezone)."""
 
     limit: int | None
     """Maximum number of recordings to return."""
