@@ -1,10 +1,11 @@
-from collections.abc import AsyncIterator, Sequence
+from collections.abc import AsyncGenerator, AsyncIterator, Sequence
 from datetime import datetime
 from typing import Self
 from uuid import UUID
 
 from gecko.models.base import SerializableModel, datamodel
 from gecko.services.recordings import models as rm
+from gecko.utils.mime import MimeType
 from gecko.utils.time import NaiveDatetime
 
 
@@ -57,7 +58,7 @@ type DownloadRequestEvent = UUID
 
 type DownloadRequestStart = NaiveDatetime
 
-type DownloadResponseType = str
+type DownloadResponseType = MimeType
 
 type DownloadResponseSize = int
 
@@ -65,13 +66,13 @@ type DownloadResponseTag = str
 
 type DownloadResponseModified = datetime
 
-type DownloadResponseData = AsyncIterator[bytes]
+type DownloadResponseData = AsyncGenerator[bytes]
 
 type HeadDownloadRequestEvent = UUID
 
 type HeadDownloadRequestStart = NaiveDatetime
 
-type HeadDownloadResponseType = str
+type HeadDownloadResponseType = MimeType
 
 type HeadDownloadResponseSize = int
 
@@ -83,7 +84,7 @@ type UploadRequestEvent = UUID
 
 type UploadRequestStart = NaiveDatetime
 
-type UploadRequestType = str
+type UploadRequestType = MimeType
 
 type UploadRequestData = AsyncIterator[bytes]
 

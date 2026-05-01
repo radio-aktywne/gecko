@@ -1,4 +1,4 @@
-from collections.abc import AsyncGenerator, Mapping
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Annotated, cast
 
@@ -6,7 +6,6 @@ from litestar import Controller as BaseController
 from litestar import Request, handlers
 from litestar.datastructures import ResponseHeader
 from litestar.di import Provide
-from litestar.exceptions import InternalServerException
 from litestar.openapi.spec import (
     OpenAPIFormat,
     OpenAPIMediaType,
@@ -87,7 +86,7 @@ class Controller(BaseController):
     @handlers.get(
         "/{event:str}",
         summary="List recordings",
-        raises=[BadRequestException, NotFoundException],
+        raises=[BadRequestException],
     )
     async def list(  # noqa: PLR0913
         self,
@@ -141,10 +140,8 @@ class Controller(BaseController):
 
         try:
             response = await service.list(request)
-        except e.BadEventTypeError as ex:
+        except e.ValidationError as ex:
             raise BadRequestException from ex
-        except e.EventNotFoundError as ex:
-            raise NotFoundException from ex
 
         return Response(Serializable(response.results))
 
@@ -199,22 +196,24 @@ class Controller(BaseController):
 
         try:
             response = await service.download(request)
-        except e.BadEventTypeError as ex:
+        except e.ValidationError as ex:
             raise BadRequestException from ex
-        except e.InstanceNotFoundError as ex:
-            raise NotFoundException from ex
-        except e.RecordingNotFoundError as ex:
+        except e.NotFoundError as ex:
             raise NotFoundException from ex
 
-        return Stream(
-            response.data,
-            headers={
-                "Content-Type": response.type,
-                "Content-Length": str(response.size),
-                "ETag": response.tag,
-                "Last-Modified": httpstringify(response.modified),
-            },
-        )
+        try:
+            return Stream(
+                response.data,
+                headers={
+                    "Content-Type": str(response.type),
+                    "Content-Length": str(response.size),
+                    "ETag": response.tag,
+                    "Last-Modified": httpstringify(response.modified),
+                },
+            )
+        except:
+            await response.data.aclose()
+            raise
 
     @handlers.head(
         "/{event:str}/{start:str}",
@@ -265,11 +264,9 @@ class Controller(BaseController):
 
         try:
             response = await service.headdownload(request)
-        except e.BadEventTypeError as ex:
+        except e.ValidationError as ex:
             raise BadRequestException from ex
-        except e.InstanceNotFoundError as ex:
-            raise NotFoundException from ex
-        except e.RecordingNotFoundError as ex:
+        except e.NotFoundError as ex:
             raise NotFoundException from ex
 
         return cast(
@@ -277,7 +274,7 @@ class Controller(BaseController):
             Response(
                 None,
                 headers={
-                    "Content-Type": response.type,
+                    "Content-Type": str(response.type),
                     "Content-Length": str(response.size),
                     "ETag": response.tag,
                     "Last-Modified": httpstringify(response.modified),
@@ -289,7 +286,7 @@ class Controller(BaseController):
         "/{event:str}/{start:str}",
         summary="Upload recording",
         status_code=HTTP_204_NO_CONTENT,
-        raises=[BadRequestException, NotFoundException],
+        raises=[BadRequestException],
         operation_class=UploadOperation,
     )
     async def upload(
@@ -317,30 +314,19 @@ class Controller(BaseController):
         request: Request,
     ) -> None:
         """Upload a recording."""
-
-        async def _stream(request: Request) -> AsyncGenerator[bytes]:
-            stream = request.stream()
-            while True:
-                try:
-                    chunk = await anext(stream)
-                except (StopAsyncIteration, InternalServerException):
-                    break
-
-                yield chunk
-
-        req = m.UploadRequest(
-            event=event.root,
-            start=start.root,
-            type=content_type.root,
-            data=_stream(request),
-        )
+        data = request.stream()
 
         try:
-            await service.upload(req)
-        except e.BadEventTypeError as ex:
-            raise BadRequestException from ex
-        except e.InstanceNotFoundError as ex:
-            raise NotFoundException from ex
+            req = m.UploadRequest(
+                event=event.root, start=start.root, type=content_type.root, data=data
+            )
+
+            try:
+                await service.upload(req)
+            except e.ValidationError as ex:
+                raise BadRequestException from ex
+        finally:
+            await data.aclose()
 
     @handlers.delete(
         "/{event:str}/{start:str}",
@@ -368,9 +354,7 @@ class Controller(BaseController):
 
         try:
             await service.delete(request)
-        except e.BadEventTypeError as ex:
+        except e.ValidationError as ex:
             raise BadRequestException from ex
-        except e.InstanceNotFoundError as ex:
-            raise NotFoundException from ex
-        except e.RecordingNotFoundError as ex:
+        except e.NotFoundError as ex:
             raise NotFoundException from ex

@@ -1,14 +1,10 @@
-from collections.abc import Sequence
+from collections.abc import AsyncGenerator, AsyncIterator, Sequence
 from datetime import datetime
 from enum import StrEnum
 from uuid import UUID
 
 from gecko.models.base import datamodel
-from gecko.services.emerald import models as em
-
-DownloadContent = em.DownloadContent
-
-UploadContent = em.UploadContent
+from gecko.utils.mime import MimeType
 
 
 class ListOrder(StrEnum):
@@ -27,6 +23,37 @@ class Recording:
 
     start: datetime
     """Start datetime of the event instance in event timezone."""
+
+
+@datamodel
+class UploadContent:
+    """Content model for upload."""
+
+    type: MimeType
+    """Content type."""
+
+    data: AsyncIterator[bytes]
+    """Asynchronous iterator of data bytes."""
+
+
+@datamodel
+class DownloadContent:
+    """Content model for download."""
+
+    type: MimeType
+    """Content type."""
+
+    size: int
+    """Size of the content in bytes."""
+
+    tag: str
+    """ETag of the content."""
+
+    modified: datetime
+    """Date and time when the content was last modified."""
+
+    data: AsyncGenerator[bytes]
+    """Asynchronous generator of data bytes."""
 
 
 @datamodel
