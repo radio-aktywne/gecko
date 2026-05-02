@@ -1,3 +1,4 @@
+import asyncio
 from collections.abc import Generator, Sequence
 from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
@@ -12,6 +13,8 @@ from gecko.services.emerald import models as em
 from gecko.services.emerald.service import EmeraldService
 from gecko.services.recordings import errors as e
 from gecko.services.recordings import models as m
+from gecko.services.recordings.utils import ContentTypeChecker
+from gecko.utils.mime import MimeType, MimeTypeValidationError
 from gecko.utils.time import isoparse, isostringify
 
 
@@ -52,30 +55,20 @@ class RecordingsService:
 
                 raise
 
-        if events_get_response.event.type != bm.EventType.live:
-            raise e.BadEventTypeError(events_get_response.event.type)
-
         return events_get_response.event
 
-    async def _get_instance(
-        self, event: UUID, start: datetime
-    ) -> bm.EventInstance | None:
-        mevent = await self._get_event(event)
-
-        if mevent is None:
-            return None
-
-        utcstart = (
-            start.replace(
-                hour=0, minute=0, second=0, microsecond=0, tzinfo=mevent.timezone
-            )
-            .astimezone(UTC)
-            .replace(tzinfo=None)
+    async def _get_instances(
+        self, event: bm.Event, after: datetime, before: datetime
+    ) -> Sequence[bm.EventInstance]:
+        utcafter = (
+            after.replace(tzinfo=event.timezone).astimezone(UTC).replace(tzinfo=None)
         )
-        utcend = utcstart + timedelta(days=1)
+        utcbefore = (
+            before.replace(tzinfo=event.timezone).astimezone(UTC).replace(tzinfo=None)
+        )
 
         schedule_list_request = bm.ScheduleListRequest(
-            start=utcstart, end=utcend, where={"id": str(mevent.id)}
+            start=utcafter, end=utcbefore, where={"id": str(event.id)}
         )
 
         with self._handle_errors():
@@ -85,16 +78,33 @@ class RecordingsService:
 
         schedule = next(iter(schedule_list_response.results.schedules), None)
 
-        if schedule is None:
-            return None
+        if not schedule:
+            return []
 
-        if schedule.event.type != bm.EventType.live:
-            raise e.BadEventTypeError(schedule.event.type)
+        return schedule.instances
+
+    async def _get_instance(
+        self, event: bm.Event, start: datetime
+    ) -> bm.EventInstance | None:
+        after = start.replace(hour=0, minute=0, second=0, microsecond=0)
+        before = after + timedelta(days=1)
+        instances = await self._get_instances(event, after, before)
 
         return next(
-            (instance for instance in schedule.instances if instance.start == start),
+            (instance for instance in instances if instance.start == start),
             None,
         )
+
+    async def _get_object(self, name: str) -> em.ObjectDetails | None:
+        get_request = em.GetRequest(name=name)
+
+        with self._handle_errors():
+            try:
+                get_response = await self._emerald.get(get_request)
+            except ee.NotFoundError:
+                return None
+
+        return get_response.object
 
     def _make_prefix(self, event: UUID) -> str:
         return f"{event}/"
@@ -107,35 +117,119 @@ class RecordingsService:
         name = self._make_name(start)
         return f"{prefix}{name}"
 
-    def _parse_prefix(self, prefix: str) -> UUID:
-        return UUID(prefix[:-1])
+    def _parse_prefix(self, prefix: str) -> UUID | None:
+        try:
+            return UUID(prefix[:-1])
+        except ValueError:
+            return None
 
-    def _parse_name(self, name: str) -> datetime:
-        return isoparse(name)
+    def _parse_name(self, name: str) -> datetime | None:
+        try:
+            return isoparse(name)
+        except ValueError:
+            return None
 
-    def _parse_key(self, key: str) -> tuple[UUID, datetime]:
+    def _parse_key(self, key: str) -> tuple[UUID, datetime] | None:
         split = key.find("/")
         prefix, name = key[: split + 1], key[split + 1 :]
         event = self._parse_prefix(prefix)
         start = self._parse_name(name)
-        return event, start
 
-    async def _list_get_objects(self, prefix: str) -> Sequence[em.Object]:
+        return (event, start) if event and start else None
+
+    def _parse_content_type(self, value: str | None) -> MimeType | None:
+        if value is None:
+            return None
+
+        try:
+            parsed = MimeType.parse(value)
+        except MimeTypeValidationError:
+            return None
+
+        return parsed if ContentTypeChecker().check(parsed) else None
+
+    async def _list_get_objects(self, prefix: str) -> Sequence[em.ObjectListing]:
         list_request = em.ListRequest(prefix=prefix, recursive=False)
 
         with self._handle_errors():
             list_response = await self._emerald.list(list_request)
             return [obj async for obj in list_response.objects]
 
-    def _list_map_objects(self, objects: Sequence[em.Object]) -> Sequence[m.Recording]:
-        recordings = []
+    def _list_map_objects(
+        self, objects: Sequence[em.ObjectListing]
+    ) -> Sequence[m.Recording]:
+        return [
+            m.Recording(event=event, start=start)
+            for obj in objects
+            if (parsed := self._parse_key(obj.name))
+            for event, start in [parsed]
+        ]
 
-        for obj in objects:
-            event, start = self._parse_key(obj.name)
-            recording = m.Recording(event=event, start=start)
-            recordings.append(recording)
+    def _list_filter_recordings_by_time(
+        self,
+        recordings: Sequence[m.Recording],
+        after: datetime | None,
+        before: datetime | None,
+    ) -> Sequence[m.Recording]:
+        return [
+            recording
+            for recording in recordings
+            if (after is None or recording.start >= after)
+            and (before is None or recording.start < before)
+        ]
 
-        return recordings
+    async def _list_filter_recordings_by_instance(
+        self, recordings: Sequence[m.Recording], event: bm.Event
+    ) -> Sequence[m.Recording]:
+        after = min(recording.start for recording in recordings)
+        after = after.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        before = max(recording.start for recording in recordings)
+        before = before.replace(hour=0, minute=0, second=0, microsecond=0)
+        before = before + timedelta(days=1)
+
+        instances = await self._get_instances(event, after, before)
+        starts = {instance.start for instance in instances}
+
+        return [recording for recording in recordings if recording.start in starts]
+
+    async def _list_filter_recordings_by_content_type(
+        self, recordings: Sequence[m.Recording]
+    ) -> Sequence[m.Recording]:
+        semaphore = asyncio.Semaphore(10)
+
+        async def get(recording: m.Recording) -> em.ObjectDetails | None:
+            key = self._make_key(recording.event, recording.start)
+
+            async with semaphore:
+                return await self._get_object(key)
+
+        details = await asyncio.gather(*[get(recording) for recording in recordings])
+
+        return [
+            recording
+            for recording, detail in zip(recordings, details, strict=False)
+            if detail and self._parse_content_type(detail.type)
+        ]
+
+    async def _list_filter_recordings(
+        self,
+        recordings: Sequence[m.Recording],
+        event: bm.Event,
+        after: datetime | None,
+        before: datetime | None,
+    ) -> Sequence[m.Recording]:
+        recordings = self._list_filter_recordings_by_time(recordings, after, before)
+
+        if not recordings:
+            return []
+
+        recordings = await self._list_filter_recordings_by_instance(recordings, event)
+
+        if not recordings:
+            return []
+
+        return await self._list_filter_recordings_by_content_type(recordings)
 
     def _list_sort_recordings(
         self, recordings: Sequence[m.Recording], order: m.ListOrder | None
@@ -148,24 +242,6 @@ class RecordingsService:
             key=lambda recording: recording.start,
             reverse=order == m.ListOrder.DESCENDING,
         )
-
-    def _list_filter_recordings(
-        self,
-        recordings: Sequence[m.Recording],
-        after: datetime | None,
-        before: datetime | None,
-    ) -> Sequence[m.Recording]:
-        if after is not None:
-            recordings = [
-                recording for recording in recordings if recording.start > after
-            ]
-
-        if before is not None:
-            recordings = [
-                recording for recording in recordings if recording.start < before
-            ]
-
-        return recordings
 
     def _list_pick_recordings(
         self,
@@ -183,15 +259,20 @@ class RecordingsService:
 
     async def list(self, request: m.ListRequest) -> m.ListResponse:
         """List recordings."""
-        if await self._get_event(request.event) is None:
+        event = await self._get_event(request.event)
+
+        if not event:
             raise e.EventNotFoundError(request.event)
 
-        prefix = self._make_prefix(request.event)
+        if event.type != bm.EventType.live:
+            raise e.BadEventTypeError(event.type)
+
+        prefix = self._make_prefix(event.id)
 
         objects = await self._list_get_objects(prefix)
         recordings = self._list_map_objects(objects)
-        recordings = self._list_filter_recordings(
-            recordings, request.after, request.before
+        recordings = await self._list_filter_recordings(
+            recordings, event, request.after, request.before
         )
         recordings = self._list_sort_recordings(recordings, request.order)
 
@@ -210,29 +291,74 @@ class RecordingsService:
 
     async def download(self, request: m.DownloadRequest) -> m.DownloadResponse:
         """Download a recording."""
-        if await self._get_instance(request.event, request.start) is None:
-            raise e.InstanceNotFoundError(request.event, request.start)
+        event = await self._get_event(request.event)
 
-        key = self._make_key(request.event, request.start)
+        if not event:
+            raise e.EventNotFoundError(request.event)
+
+        if event.type != bm.EventType.live:
+            raise e.BadEventTypeError(event.type)
+
+        instance = await self._get_instance(event, request.start)
+
+        if not instance:
+            raise e.InstanceNotFoundError(event.id, request.start)
+
+        key = self._make_key(event.id, instance.start)
 
         download_request = em.DownloadRequest(name=key)
 
         with (
             self._handle_errors(),
-            self._handle_not_found(request.event, request.start),
+            self._handle_not_found(event.id, instance.start),
         ):
             download_response = await self._emerald.download(download_request)
 
-        return m.DownloadResponse(content=download_response.content)
+        try:
+            content_type = self._parse_content_type(download_response.content.type)
+
+            if content_type is None:
+                raise e.RecordingNotFoundError(event.id, instance.start)
+
+            return m.DownloadResponse(
+                content=m.DownloadContent(
+                    type=content_type,
+                    size=download_response.content.size,
+                    tag=download_response.content.tag,
+                    modified=download_response.content.modified,
+                    data=download_response.content.data,
+                )
+            )
+        except:
+            await download_response.content.data.aclose()
+            raise
 
     async def upload(self, request: m.UploadRequest) -> m.UploadResponse:
         """Upload a recording."""
-        if await self._get_instance(request.event, request.start) is None:
-            raise e.InstanceNotFoundError(request.event, request.start)
+        event = await self._get_event(request.event)
 
-        key = self._make_key(request.event, request.start)
+        if not event:
+            raise e.EventNotFoundError(request.event)
 
-        upload_request = em.UploadRequest(name=key, content=request.content)
+        if event.type != bm.EventType.live:
+            raise e.BadEventTypeError(event.type)
+
+        instance = await self._get_instance(event, request.start)
+
+        if not instance:
+            raise e.InstanceNotFoundError(event.id, request.start)
+
+        if not ContentTypeChecker().check(request.content.type):
+            raise e.UnsupportedContentTypeError(request.content.type)
+
+        key = self._make_key(event.id, instance.start)
+
+        upload_request = em.UploadRequest(
+            name=key,
+            content=em.UploadContent(
+                type=str(request.content.type), data=request.content.data
+            ),
+        )
 
         with self._handle_errors():
             await self._emerald.upload(upload_request)
@@ -241,16 +367,37 @@ class RecordingsService:
 
     async def delete(self, request: m.DeleteRequest) -> m.DeleteResponse:
         """Delete a recording."""
-        if await self._get_instance(request.event, request.start) is None:
-            raise e.InstanceNotFoundError(request.event, request.start)
+        event = await self._get_event(request.event)
 
-        key = self._make_key(request.event, request.start)
+        if not event:
+            raise e.EventNotFoundError(request.event)
+
+        if event.type != bm.EventType.live:
+            raise e.BadEventTypeError(event.type)
+
+        instance = await self._get_instance(event, request.start)
+
+        if not instance:
+            raise e.InstanceNotFoundError(event.id, request.start)
+
+        key = self._make_key(event.id, instance.start)
+
+        get_request = em.GetRequest(name=key)
+
+        with (
+            self._handle_errors(),
+            self._handle_not_found(event.id, instance.start),
+        ):
+            get_response = await self._emerald.get(get_request)
+
+        if not self._parse_content_type(get_response.object.type):
+            raise e.RecordingNotFoundError(event.id, instance.start)
 
         delete_request = em.DeleteRequest(name=key)
 
         with (
             self._handle_errors(),
-            self._handle_not_found(request.event, request.start),
+            self._handle_not_found(event.id, instance.start),
         ):
             await self._emerald.delete(delete_request)
 

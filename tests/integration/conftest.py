@@ -124,7 +124,7 @@ async def emerald() -> AsyncGenerator[AsyncDockerContainer]:
 async def beaver_client(
     beaver: AsyncDockerContainer,
 ) -> AsyncGenerator[AsyncClient]:
-    """Run beaver client."""
+    """Build beaver client."""
     async with AsyncClient(base_url="http://localhost:10500") as client:
         yield client
 

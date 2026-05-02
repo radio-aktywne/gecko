@@ -23,7 +23,7 @@ curl \
     --request PUT \
     --header "Content-Type: audio/ogg" \
     --header "Transfer-Encoding: chunked" \
-    --upload-file recording.ogg \
+    --upload-file recording.opus \
     http://localhost:10700/recordings/0f339cb0-7ab4-43fe-852d-75708232f76c/2024-01-01T00:00:00
 ```
 
@@ -31,7 +31,7 @@ To download a recording, you can use `curl`
 to send a `GET` request and save the response body to a file:
 
 ```sh
-curl --request GET --output recording.ogg http://localhost:10700/recordings/0f339cb0-7ab4-43fe-852d-75708232f76c/2024-01-01T00:00:00
+curl --request GET --output recording.opus http://localhost:10700/recordings/0f339cb0-7ab4-43fe-852d-75708232f76c/2024-01-01T00:00:00
 ```
 
 ## Deleting recordings

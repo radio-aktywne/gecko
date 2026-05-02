@@ -18,14 +18,10 @@ class Service:
     def _handle_errors(self) -> Generator[None]:
         try:
             yield
-        except re.EventNotFoundError as ex:
-            raise e.EventNotFoundError from ex
-        except re.BadEventTypeError as ex:
-            raise e.BadEventTypeError from ex
-        except re.InstanceNotFoundError as ex:
-            raise e.InstanceNotFoundError from ex
-        except re.RecordingNotFoundError as ex:
-            raise e.RecordingNotFoundError from ex
+        except re.ValidationError as ex:
+            raise e.ValidationError from ex
+        except re.NotFoundError as ex:
+            raise e.NotFoundError from ex
         except re.BeaverError as ex:
             raise e.BeaverError from ex
         except re.EmeraldError as ex:
@@ -65,13 +61,17 @@ class Service:
         with self._handle_errors():
             download_response = await self._recordings.download(download_request)
 
-        return m.DownloadResponse(
-            type=download_response.content.type,
-            size=download_response.content.size,
-            tag=download_response.content.tag,
-            modified=download_response.content.modified,
-            data=download_response.content.data,
-        )
+        try:
+            return m.DownloadResponse(
+                type=download_response.content.type,
+                size=download_response.content.size,
+                tag=download_response.content.tag,
+                modified=download_response.content.modified,
+                data=download_response.content.data,
+            )
+        except:
+            await download_response.content.data.aclose()
+            raise
 
     async def headdownload(
         self, request: m.HeadDownloadRequest
@@ -81,6 +81,8 @@ class Service:
 
         with self._handle_errors():
             download_response = await self._recordings.download(download_request)
+
+        await download_response.content.data.aclose()
 
         return m.HeadDownloadResponse(
             type=download_response.content.type,
