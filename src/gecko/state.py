@@ -9,7 +9,7 @@ class State(LitestarState):
     """Use this class as a type hint for the state of the service."""
 
     beaver: BeaverService
-    """Service for beaver service."""
+    """Service for beaver API."""
 
     config: Config
     """Configuration for the service."""
