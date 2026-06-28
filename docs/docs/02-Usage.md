@@ -14,7 +14,8 @@ curl --request GET http://localhost:10700/recordings/0f339cb0-7ab4-43fe-852d-757
 
 ## Uploading and downloading recordings
 
-You can upload and download recordings using the `/recordings/:event/:start` endpoint.
+You can upload and download recordings
+using the `/recordings/:event/:start` endpoint.
 To upload a recording, you can use `curl`
 to send a `PUT` request streaming the content from a file:
 

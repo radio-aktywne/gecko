@@ -12,8 +12,8 @@ from minio.error import MinioException, S3Error
 from urllib3 import BaseHTTPResponse
 
 from gecko.config.models import EmeraldConfig
-from gecko.services.emerald import errors as e
-from gecko.services.emerald import models as m
+from gecko.services.data.emerald import errors as e
+from gecko.services.data.emerald import models as m
 from gecko.utils import asyncify, syncify
 from gecko.utils.read import ReadableIterator
 from gecko.utils.time import httpparse

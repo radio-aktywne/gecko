@@ -17,7 +17,7 @@ Broadcast recordings service 📼
 ## 💡 About
 
 `gecko` is a [`Litestar`](https://litestar.dev) service
-for recording live broadcasts.
+for managing recorded broadcasts.
 
 ## 📄 Further Reading
 
