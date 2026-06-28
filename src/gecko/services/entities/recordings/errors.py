@@ -17,7 +17,7 @@ class BadEventTypeError(ValidationError):
     """Raised when event type is not supported."""
 
     def __init__(self, event_type: str) -> None:
-        super().__init__(f"Event of type {event_type} cannot be recorded.")
+        super().__init__(f"Event of type {event_type} cannot have a recording.")
 
 
 class EventNotFoundError(ValidationError):
@@ -54,11 +54,3 @@ class RecordingNotFoundError(NotFoundError):
         super().__init__(
             f"Recording not found for instance of live event {event_id} starting at {isostringify(start)}."
         )
-
-
-class BeaverError(ServiceError):
-    """Raised when an beaver service operation fails."""
-
-
-class EmeraldError(ServiceError):
-    """Raised when a emerald database operation fails."""

@@ -12,8 +12,8 @@ from gecko.api.openapi import OpenAPIConfigBuilder
 from gecko.api.plugins.pydantic import PydanticPlugin
 from gecko.api.routes.router import router
 from gecko.config.models import Config
-from gecko.services.beaver.service import BeaverService
-from gecko.services.emerald.service import EmeraldService
+from gecko.services.apis.beaver.service import BeaverService
+from gecko.services.data.emerald.service import EmeraldService
 from gecko.state import State
 
 
@@ -48,8 +48,8 @@ class AppBuilder:
     def _build_initial_state(self) -> State:
         return State(
             {
-                "config": self._config,
                 "beaver": BeaverService(config=self._config.beaver),
+                "config": self._config,
                 "emerald": EmeraldService(config=self._config.emerald),
             }
         )

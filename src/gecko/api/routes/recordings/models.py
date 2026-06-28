@@ -1,12 +1,11 @@
 from collections.abc import AsyncGenerator, AsyncIterator, Sequence
-from datetime import datetime
 from typing import Self
 from uuid import UUID
 
 from gecko.models.base import SerializableModel, datamodel
-from gecko.services.recordings import models as rm
+from gecko.services.entities.recordings import models as rm
 from gecko.utils.mime import MimeType
-from gecko.utils.time import NaiveDatetime
+from gecko.utils.time import HTTPDatetime, NaiveDatetime
 
 
 class Recording(SerializableModel):
@@ -20,7 +19,7 @@ class Recording(SerializableModel):
 
     @classmethod
     def map(cls, recording: rm.Recording) -> Self:
-        """Map to internal representation."""
+        """Map from internal representation."""
         return cls(event=recording.event, start=recording.start)
 
 
@@ -64,7 +63,7 @@ type DownloadResponseSize = int
 
 type DownloadResponseTag = str
 
-type DownloadResponseModified = datetime
+type DownloadResponseModified = HTTPDatetime
 
 type DownloadResponseData = AsyncGenerator[bytes]
 
@@ -78,7 +77,7 @@ type HeadDownloadResponseSize = int
 
 type HeadDownloadResponseTag = str
 
-type HeadDownloadResponseModified = datetime
+type HeadDownloadResponseModified = HTTPDatetime
 
 type UploadRequestEvent = UUID
 

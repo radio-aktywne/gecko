@@ -1,8 +1,8 @@
 from litestar.datastructures import State as LitestarState
 
 from gecko.config.models import Config
-from gecko.services.beaver.service import BeaverService
-from gecko.services.emerald.service import EmeraldService
+from gecko.services.apis.beaver.service import BeaverService
+from gecko.services.data.emerald.service import EmeraldService
 
 
 class State(LitestarState):

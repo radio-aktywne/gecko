@@ -3,9 +3,9 @@ from contextlib import contextmanager
 
 from gecko.api.routes.recordings import errors as e
 from gecko.api.routes.recordings import models as m
-from gecko.services.recordings import errors as re
-from gecko.services.recordings import models as rm
-from gecko.services.recordings.service import RecordingsService
+from gecko.services.entities.recordings import errors as re
+from gecko.services.entities.recordings import models as rm
+from gecko.services.entities.recordings.service import RecordingsService
 
 
 class Service:
@@ -22,10 +22,6 @@ class Service:
             raise e.ValidationError from ex
         except re.NotFoundError as ex:
             raise e.NotFoundError from ex
-        except re.BeaverError as ex:
-            raise e.BeaverError from ex
-        except re.EmeraldError as ex:
-            raise e.EmeraldError from ex
         except re.ServiceError as ex:
             raise e.ServiceError from ex
 
