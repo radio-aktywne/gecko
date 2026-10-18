@@ -2,12 +2,11 @@ from collections.abc import Mapping
 from http import HTTPMethod, HTTPStatus
 from typing import Any
 
-from httpx import AsyncClient, HTTPError, HTTPStatusError, Response
+from httpx2 import AsyncClient, HTTPError, HTTPStatusError, Response
 
 from gecko.config.models import BeaverConfig, BeaverHTTPConfig
 from gecko.models.base import Jsonable, Serializable
-from gecko.services.apis.beaver import errors as e
-from gecko.services.apis.beaver import models as m
+from gecko.services.apis.beaver import errors as e, models as m
 
 
 class BeaverClient:

@@ -2,8 +2,7 @@ from litestar.channels import ChannelsPlugin
 
 from gecko.models.events import test as ev
 from gecko.models.events.types import Event
-from gecko.services.test import errors as e
-from gecko.services.test import models as m
+from gecko.services.test import errors as e, models as m
 
 
 class TestService:

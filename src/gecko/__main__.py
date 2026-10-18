@@ -7,6 +7,7 @@ from gecko.config.errors import ConfigError
 from gecko.console import FallbackConsoleBuilder
 from gecko.server import Server
 
+
 cli = CliBuilder().build()
 
 

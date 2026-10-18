@@ -32,7 +32,8 @@ class InstanceNotFoundError(ValidationError):
 
     def __init__(self, event_id: UUID, start: datetime) -> None:
         super().__init__(
-            f"Instance not found for live event {event_id} starting at {isostringify(start)}."
+            f"Instance not found for live event {event_id} "
+            f"starting at {isostringify(start)}."
         )
 
 
@@ -52,5 +53,6 @@ class RecordingNotFoundError(NotFoundError):
 
     def __init__(self, event_id: UUID, start: datetime) -> None:
         super().__init__(
-            f"Recording not found for instance of live event {event_id} starting at {isostringify(start)}."
+            f"Recording not found for instance of live event {event_id} "
+            f"starting at {isostringify(start)}."
         )

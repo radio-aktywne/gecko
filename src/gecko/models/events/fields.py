@@ -5,6 +5,7 @@ from pydantic import Field
 from gecko.models.base import SerializableModel
 from gecko.utils.time import UTCDatetime
 
+
 type TypeField[T] = Annotated[
     T,
     Field(description="Type of the event."),
