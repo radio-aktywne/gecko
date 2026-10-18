@@ -1,10 +1,8 @@
 from collections.abc import Generator
 from contextlib import contextmanager
 
-from gecko.api.routes.ping import errors as e
-from gecko.api.routes.ping import models as m
-from gecko.services.ping import errors as pe
-from gecko.services.ping import models as pm
+from gecko.api.routes.ping import errors as e, models as m
+from gecko.services.ping import errors as pe, models as pm
 from gecko.services.ping.service import PingService
 
 

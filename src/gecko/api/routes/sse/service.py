@@ -1,10 +1,8 @@
 from collections.abc import AsyncGenerator, Generator
 from contextlib import contextmanager
 
-from gecko.api.routes.sse import errors as e
-from gecko.api.routes.sse import models as m
-from gecko.services.events import errors as ee
-from gecko.services.events import models as em
+from gecko.api.routes.sse import errors as e, models as m
+from gecko.services.events import errors as ee, models as em
 from gecko.services.events.service import EventsService
 
 

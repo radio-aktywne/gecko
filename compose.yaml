@@ -1,0 +1,11 @@
+services:
+  gecko:
+    build:
+      context: ./
+      network: host
+    environment:
+      - "GECKO__DEBUG=${GECKO__DEBUG:-true}"
+      - "GECKO__SERVER__HOST=${GECKO__SERVER__HOST:-0.0.0.0}"
+      - "GECKO__SERVER__PORT=${GECKO__SERVER__PORT:-10700}"
+      - "GECKO__SERVER__TRUSTED=${GECKO__SERVER__TRUSTED:-*}"
+    network_mode: host

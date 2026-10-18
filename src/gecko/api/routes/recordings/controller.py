@@ -2,10 +2,9 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Annotated, cast
 
-from litestar import Controller as BaseController
-from litestar import Request, handlers
+from litestar import Controller as BaseController, Request, handlers
 from litestar.datastructures import ResponseHeader
-from litestar.di import Provide
+from litestar.di import NamedDependency, Provide
 from litestar.openapi.spec import (
     OpenAPIFormat,
     OpenAPIMediaType,
@@ -15,13 +14,12 @@ from litestar.openapi.spec import (
     RequestBody,
     Schema,
 )
-from litestar.params import Parameter
+from litestar.params import HeaderParameter, Parameter
 from litestar.response import Response, Stream
 from litestar.status_codes import HTTP_200_OK, HTTP_204_NO_CONTENT
 
 from gecko.api.exceptions import BadRequestException, NotFoundException
-from gecko.api.routes.recordings import errors as e
-from gecko.api.routes.recordings import models as m
+from gecko.api.routes.recordings import errors as e, models as m
 from gecko.api.routes.recordings.service import Service
 from gecko.models.base import Jsonable, Serializable
 from gecko.services.entities.recordings.service import RecordingsService
@@ -87,9 +85,9 @@ class Controller(BaseController):
         summary="List recordings",
         raises=[BadRequestException],
     )
-    async def list(  # noqa: PLR0913
+    async def list(
         self,
-        service: Service,
+        service: NamedDependency[Service],
         event: Annotated[
             Serializable[m.ListRequestEvent],
             Parameter(
@@ -99,13 +97,15 @@ class Controller(BaseController):
         after: Annotated[
             Jsonable[m.ListRequestAfter] | None,
             Parameter(
-                description="Only list recordings after this datetime (in event timezone).",
+                description="Only list recordings after this datetime "
+                "(in event timezone).",
             ),
         ] = None,
         before: Annotated[
             Jsonable[m.ListRequestBefore] | None,
             Parameter(
-                description="Only list recordings before this datetime (in event timezone).",
+                description="Only list recordings before this datetime "
+                "(in event timezone).",
             ),
         ] = None,
         limit: Annotated[
@@ -176,7 +176,7 @@ class Controller(BaseController):
     )
     async def download(
         self,
-        service: Service,
+        service: NamedDependency[Service],
         event: Annotated[
             Serializable[m.DownloadRequestEvent],
             Parameter(
@@ -254,7 +254,7 @@ class Controller(BaseController):
     )
     async def headdownload(
         self,
-        service: Service,
+        service: NamedDependency[Service],
         event: Annotated[
             Serializable[m.HeadDownloadRequestEvent],
             Parameter(
@@ -307,7 +307,7 @@ class Controller(BaseController):
     )
     async def upload(
         self,
-        service: Service,
+        service: NamedDependency[Service],
         event: Annotated[
             Serializable[m.UploadRequestEvent],
             Parameter(
@@ -322,8 +322,8 @@ class Controller(BaseController):
         ],
         content_type: Annotated[
             Jsonable[m.UploadRequestType],
-            Parameter(
-                header="Content-Type",
+            HeaderParameter(
+                name="Content-Type",
                 description="Type of the recording data.",
             ),
         ],
@@ -351,7 +351,7 @@ class Controller(BaseController):
     )
     async def delete(
         self,
-        service: Service,
+        service: NamedDependency[Service],
         event: Annotated[
             Serializable[m.DeleteRequestEvent],
             Parameter(

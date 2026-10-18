@@ -7,7 +7,11 @@ from litestar.channels.backends.memory import MemoryChannelsBackend
 from litestar.openapi import OpenAPIConfig
 from litestar.plugins import PluginProtocol
 
-from gecko.api.lifespans import SuppressHTTPXLoggingLifespan, TestLifespan
+from gecko.api.lifespans import (
+    SuppressHTTPX2LoggingLifespan,
+    SuppressHTTPXLoggingLifespan,
+    TestLifespan,
+)
 from gecko.api.openapi import OpenAPIConfigBuilder
 from gecko.api.plugins.pydantic import PydanticPlugin
 from gecko.api.routes.router import router
@@ -34,6 +38,7 @@ class AppBuilder:
         return [
             TestLifespan,
             SuppressHTTPXLoggingLifespan,
+            SuppressHTTPX2LoggingLifespan,
         ]
 
     def _build_openapi_config(self) -> OpenAPIConfig:

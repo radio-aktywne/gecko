@@ -1,10 +1,8 @@
 from collections.abc import Generator
 from contextlib import contextmanager
 
-from gecko.api.routes.recordings import errors as e
-from gecko.api.routes.recordings import models as m
-from gecko.services.entities.recordings import errors as re
-from gecko.services.entities.recordings import models as rm
+from gecko.api.routes.recordings import errors as e, models as m
+from gecko.services.entities.recordings import errors as re, models as rm
 from gecko.services.entities.recordings.service import RecordingsService
 
 

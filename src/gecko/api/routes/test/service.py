@@ -1,10 +1,8 @@
 from collections.abc import Generator
 from contextlib import contextmanager
 
-from gecko.api.routes.test import errors as e
-from gecko.api.routes.test import models as m
-from gecko.services.test import errors as te
-from gecko.services.test import models as tm
+from gecko.api.routes.test import errors as e, models as m
+from gecko.services.test import errors as te, models as tm
 from gecko.services.test.service import TestService
 
 
