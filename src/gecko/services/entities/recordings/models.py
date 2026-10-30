@@ -57,6 +57,23 @@ class DownloadContent:
 
 
 @datamodel
+class HeadDownloadContent:
+    """Content model for headers download."""
+
+    type: MimeType
+    """Content type."""
+
+    size: int
+    """Size of the content in bytes."""
+
+    tag: str
+    """ETag of the content."""
+
+    modified: datetime
+    """Date and time when the content was last modified."""
+
+
+@datamodel
 class ListRequest:
     """Request to list recordings."""
 
@@ -113,6 +130,25 @@ class DownloadResponse:
 
     content: DownloadContent
     """Content of the recording."""
+
+
+@datamodel
+class HeadDownloadRequest:
+    """Request to download recording headers."""
+
+    event: UUID
+    """Identifier of the event."""
+
+    start: datetime
+    """Start datetime of the event instance in event timezone."""
+
+
+@datamodel
+class HeadDownloadResponse:
+    """Response for downloading recording headers."""
+
+    content: HeadDownloadContent
+    """Content headers of the recording."""
 
 
 @datamodel

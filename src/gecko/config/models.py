@@ -64,12 +64,10 @@ class EmeraldS3Config(BaseModel):
         return "default"
 
     @property
-    def endpoint(self) -> str:
-        """Endpoint to connect to the S3 API."""
-        if self.port is None:
-            return self.host
-
-        return f"{self.host}:{self.port}"
+    def url(self) -> str:
+        """URL to connect to the S3 API."""
+        scheme = "https" if self.secure else "http"
+        return f"{scheme}://{self.host}{f':{self.port}' if self.port else ''}"
 
 
 class EmeraldConfig(BaseModel):
