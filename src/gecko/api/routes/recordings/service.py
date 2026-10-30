@@ -71,18 +71,20 @@ class Service:
         self, request: m.HeadDownloadRequest
     ) -> m.HeadDownloadResponse:
         """Download recording headers."""
-        download_request = rm.DownloadRequest(event=request.event, start=request.start)
+        headdownload_request = rm.HeadDownloadRequest(
+            event=request.event, start=request.start
+        )
 
         with self._handle_errors():
-            download_response = await self._recordings.download(download_request)
-
-        await download_response.content.data.aclose()
+            headdownload_response = await self._recordings.headdownload(
+                headdownload_request
+            )
 
         return m.HeadDownloadResponse(
-            type=download_response.content.type,
-            size=download_response.content.size,
-            tag=download_response.content.tag,
-            modified=download_response.content.modified,
+            type=headdownload_response.content.type,
+            size=headdownload_response.content.size,
+            tag=headdownload_response.content.tag,
+            modified=headdownload_response.content.modified,
         )
 
     async def upload(self, request: m.UploadRequest) -> m.UploadResponse:
